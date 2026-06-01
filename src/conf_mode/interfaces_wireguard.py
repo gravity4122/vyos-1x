@@ -87,6 +87,10 @@ def get_config(config=None):
         wireguard['prev_fwmark'] = prev.get('fwmark')
         wireguard['prev_vrf'] = prev.get('vrf')
 
+    # Check vrf membership, to ensure firewall is updated
+    if is_node_changed(conf, base + [ifname, 'vrf']):
+        set_dependents('firewall', conf)
+
     return wireguard
 
 
@@ -206,6 +210,7 @@ def apply(wireguard):
             domain_action = 'stop'
     call(f'systemctl {domain_action} vyos-domain-resolver.service')
 
+    # run the dependents
     call_dependents()
 
     return None

@@ -21,6 +21,8 @@ from sys import exit
 from vyos.config import Config
 from vyos.configdict import get_interface_dict
 from vyos.configdict import is_node_changed
+from vyos.configdep import set_dependents
+from vyos.configdep import call_dependents
 from vyos.configverify import verify_authentication
 from vyos.configverify import verify_source_interface
 from vyos.configverify import verify_vrf
@@ -72,6 +74,10 @@ def get_config(config=None):
         if 'mru' not in pppoe:
             pppoe['mru'] = pppoe['mtu']
 
+    # Check vrf membership, to ensure firewall is updated
+    if is_node_changed(conf, base + [ifname, 'vrf']):
+        set_dependents('firewall', conf)
+
     return pppoe
 
 def verify(pppoe):
@@ -119,6 +125,9 @@ def apply(pppoe):
             p = PPPoEIf(ifname)
             p.remove()
         call(f'systemctl stop ppp@{ifname}.service')
+        
+        # run the dependents and return
+        call_dependents()
         return None
 
     # reconnect should only be necessary when certain config options change,
@@ -139,6 +148,9 @@ def apply(pppoe):
         if os.path.isdir(f'/sys/class/net/{ifname}'):
             p = PPPoEIf(ifname)
             p.update(pppoe)
+
+    # run the dependents
+    call_dependents()
 
     return None
 

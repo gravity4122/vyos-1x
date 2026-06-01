@@ -18,6 +18,8 @@ import ipaddress
 from vyos.config import Config
 from vyos.configdict import get_interface_dict
 from vyos.configdict import is_node_changed
+from vyos.configdep import set_dependents
+from vyos.configdep import call_dependents
 from vyos.configverify import verify_address
 from vyos.configverify import verify_bridge_delete
 from vyos.configverify import verify_source_interface
@@ -77,6 +79,10 @@ def get_config(config=None):
 
     if 'encapsulation' in tunnel and tunnel['encapsulation'] not in ['erspan', 'ip6erspan']:
         del tunnel['parameters']['erspan']
+
+    # Check vrf membership, to ensure firewall is updated
+    if is_node_changed(conf, base + [ifname, 'vrf']):
+        set_dependents('firewall', conf)
 
     return tunnel
 
@@ -218,10 +224,15 @@ def apply(tunnel):
             tmp = Interface(interface)
             tmp.remove()
         if 'deleted' in tunnel:
+            # run the dependents and return
+            call_dependents()
             return None
 
     tun = TunnelIf(**tunnel)
     tun.update(tunnel)
+
+    # run the dependents
+    call_dependents()
 
     return None
 

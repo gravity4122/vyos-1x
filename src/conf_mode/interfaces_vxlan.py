@@ -89,6 +89,10 @@ def get_config(config=None):
     if 'static_arp' in vxlan:
         set_dependents('static_arp', conf)
 
+    # Check vrf membership, to ensure firewall is updated
+    if is_node_changed(conf, base + [ifname, 'vrf']):
+        set_dependents('firewall', conf)
+
     return vxlan
 
 def verify(vxlan):
@@ -257,8 +261,8 @@ def apply(vxlan):
         v = VXLANIf(**vxlan)
         v.update(vxlan)
 
-    if 'static_arp' in vxlan:
-        call_dependents()
+    # run the dependents
+    call_dependents()
 
     return None
 

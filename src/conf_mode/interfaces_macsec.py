@@ -84,6 +84,10 @@ def get_config(config=None):
     if 'static_arp' in macsec:
         set_dependents('static_arp', conf)
 
+    # Check vrf membership, to ensure firewall is updated
+    if is_node_changed(conf, base + [ifname, 'vrf']):
+        set_dependents('firewall', conf)
+
     return macsec
 
 
@@ -187,6 +191,9 @@ def apply(macsec):
             if os.path.isfile(wpa_suppl_conf.format(**macsec)):
                 os.unlink(wpa_suppl_conf.format(**macsec))
 
+            # run the dependents
+            call_dependents()
+
             return None
 
     # It is safe to "re-create" the interface always, there is a sanity
@@ -199,8 +206,8 @@ def apply(macsec):
         if not is_systemd_service_running(systemd_service) or 'shutdown_required' in macsec:
             call(f'systemctl reload-or-restart {systemd_service}')
 
-    if 'static_arp' in macsec:
-        call_dependents()
+    # run the dependents
+    call_dependents()
 
     return None
 

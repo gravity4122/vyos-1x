@@ -195,6 +195,22 @@ def get_config(config=None):
     if 'static_arp' in ethernet:
         set_dependents('static_arp', conf)
 
+    # Check vrf membership, to ensure firewall is updated
+    # Parent interface
+    if is_node_changed(conf, base + [ifname, 'vrf']):
+        set_dependents('firewall', conf)
+    # vif interface
+    for vif in conf.list_nodes(base + [ifname, 'vif']):
+        if is_node_changed(conf, base + [ifname, 'vif', vif, 'vrf']):
+            set_dependents('firewall', conf)
+    # q-in-q interface
+    for vif_s in conf.list_nodes(base + [ifname, 'vif-s']):
+        if is_node_changed(conf, base + [ifname, 'vif-s', vif_s, 'vrf']):
+            set_dependents('firewall', conf)
+        for vif_c in conf.list_nodes(base + [ifname, 'vif-s', vif_s, 'vif-c']):
+            if is_node_changed(conf, base + [ifname, 'vif-s', vif_s, 'vif-c', vif_c, 'vrf']):
+                set_dependents('firewall', conf)
+
     return ethernet
 
 def verify_speed_duplex(ethernet: dict, ethtool: Ethtool):
@@ -441,8 +457,9 @@ def apply(ethernet):
         e.remove()
     else:
         e.update(ethernet)
-    if 'static_arp' in ethernet:
-        call_dependents()
+
+    # run the dependents
+    call_dependents()
 
     vpp_iface_config = dict_search(f'vpp.settings.interface.{ifname}', ethernet)
     if vpp_iface_config is not None and is_systemd_service_running('vpp.service'):

@@ -33,6 +33,8 @@ from vyos.config import Config
 from vyos.configdict import get_interface_dict
 from vyos.configdict import is_node_changed
 from vyos.configdiff import get_config_diff
+from vyos.configdep import set_dependents
+from vyos.configdep import call_dependents
 from vyos.configverify import verify_vrf
 from vyos.configverify import verify_bridge_delete
 from vyos.configverify import verify_mirror_redirect
@@ -180,6 +182,10 @@ def get_config(config=None):
         openvpn['protocol_modifier']  = '6'
     else:
         openvpn['protocol_modifier'] = ''
+
+    # Check vrf membership, to ensure firewall is updated
+    if is_node_changed(conf, base + [ifname, 'vrf']):
+        set_dependents('firewall', conf)
 
     return openvpn
 
@@ -854,6 +860,9 @@ def apply(openvpn):
 
     o = VTunIf(**openvpn)
     o.update(openvpn)
+
+    # run the dependents
+    call_dependents()
 
     return None
 

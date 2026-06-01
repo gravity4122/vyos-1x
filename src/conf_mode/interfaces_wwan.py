@@ -93,6 +93,10 @@ def get_config(config=None):
     if 'static_arp' in wwan:
         set_dependents('static_arp', conf)
 
+    # Check vrf membership, to ensure firewall is updated
+    if is_node_changed(conf, base + [ifname, 'vrf']):
+        set_dependents('firewall', conf)
+
     return wwan
 
 def verify(wwan):
@@ -170,6 +174,9 @@ def apply(wwan):
             if os.path.exists(cron_script):
                 os.unlink(cron_script)
 
+        # run the dependents
+        call_dependents()
+
         return None
 
     if 'shutdown_required' in wwan or (not is_wwan_connected(wwan['ifname'])):
@@ -192,8 +199,8 @@ def apply(wwan):
 
     w.update(wwan)
 
-    if 'static_arp' in wwan:
-        call_dependents()
+    # run the dependents
+    call_dependents()
 
     return None
 
