@@ -19,6 +19,7 @@ from json import loads
 from socket import AF_INET
 from socket import AF_INET6
 from vyos.utils.process import cmd
+from vyos.utils.system import sysctl_read
 
 def _are_same_ip(one, two):
     from socket import inet_pton
@@ -407,7 +408,9 @@ def is_listen_port_bind_service(port: int, service: str, address: str = None) ->
         pid_name = process(pid).name()
         pid_port = addr.port
 
-        if has_address:
+        # Ignore address check when service listening on "any address",
+        # service config might change from any to limited address scope
+        if has_address and addr.ip not in ('::', '0.0.0.0'):
             if address == addr.ip and port == pid_port and service == pid_name:
                 return True
         else:
@@ -432,6 +435,14 @@ def is_addr_assigned(ip_address, vrf=None, return_ifname=False, include_vrf=Fals
     from netifaces import interfaces # pylint: disable = no-name-in-module
     from vyos.utils.network import get_interface_config
     from vyos.utils.dict import dict_search
+
+    # Check if sysctl to allow nonlocal binds is set for given afi, skip check accordingly
+    if (
+        is_valid_ipv4_address_or_range(ip_address) and sysctl_read(['net', 'ipv4', 'ip_nonlocal_bind']) == "1"
+    ) or (
+        is_valid_ipv6_address_or_range(ip_address) and sysctl_read(['net', 'ipv6', 'ip_nonlocal_bind']) == "1"
+    ):
+        return True
 
     for interface in interfaces():
         # Check if interface belongs to the requested VRF, if this is not the
