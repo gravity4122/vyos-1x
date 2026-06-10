@@ -430,7 +430,8 @@ def is_ipv6_link_local(addr):
 
     return False
 
-def is_addr_assigned(ip_address, vrf=None, return_ifname=False, include_vrf=False) -> bool | str:
+
+def is_addr_assigned(ip_address: str, vrf=None, include_vrf=False) -> bool:
     """ Verify if the given IPv4/IPv6 address is assigned to any interface """
     from netifaces import interfaces # pylint: disable = no-name-in-module
     from vyos.utils.network import get_interface_config
@@ -438,9 +439,11 @@ def is_addr_assigned(ip_address, vrf=None, return_ifname=False, include_vrf=Fals
 
     # Check if sysctl to allow nonlocal binds is set for given afi, skip check accordingly
     if (
-        is_valid_ipv4_address_or_range(ip_address) and sysctl_read(['net', 'ipv4', 'ip_nonlocal_bind']) == "1"
+        is_valid_ipv4_address_or_range(ip_address)
+        and sysctl_read(['net', 'ipv4', 'ip_nonlocal_bind']) == "1"
     ) or (
-        is_valid_ipv6_address_or_range(ip_address) and sysctl_read(['net', 'ipv6', 'ip_nonlocal_bind']) == "1"
+        is_valid_ipv6_address_or_range(ip_address)
+        and sysctl_read(['net', 'ipv6', 'ip_nonlocal_bind']) == "1"
     ):
         return True
 
@@ -453,7 +456,7 @@ def is_addr_assigned(ip_address, vrf=None, return_ifname=False, include_vrf=Fals
             continue
 
         if is_intf_addr_assigned(interface, ip_address):
-            return interface if return_ifname else True
+            return True
 
     return False
 
@@ -746,26 +749,30 @@ def is_valid_ipv6_address_or_range(addr: str) -> bool:
         return False
 
 
-def get_interfaces_by_ip(ip_address: str) -> list:
+def get_interfaces_by_ip(ip_address: str, vrf=None, include_vrf: bool = False) -> list:
     """
     Return a list of all interface names assigned the given IP address.
     Args:
         ip_address (str): The IP address to search for.
+        vrf (str): If specified, only interfaces in this VRF are considered.
+        include_vrf (bool): If True, interfaces from all VRFs are considered.
     Returns:
         list: List of interface names (str) that have the given IP address assigned.
               Returns an empty list if no interface has the IP assigned.
     """
     import netifaces
-    from vyos.template import is_ipv6
-
-    addr_type = AF_INET
-    if is_ipv6(ip_address):
-        addr_type = AF_INET6
+    from vyos.utils.dict import dict_search
 
     ifaces = []
     for interface in netifaces.interfaces():
-        addresses = netifaces.ifaddresses(interface)
-        for addr_info in addresses.get(addr_type, []):
-            if addr_info.get('addr') == ip_address:
-                ifaces.append(interface)
+        # Check if interface belongs to the requested VRF, if this is not the
+        # case there is no need to proceed with this data set - continue loop
+        # with next element
+        tmp = get_interface_config(interface)
+        if vrf is not None and dict_search('master', tmp) != vrf and not include_vrf:
+            continue
+
+        if is_intf_addr_assigned(interface, ip_address):
+            ifaces.append(interface)
+
     return ifaces
