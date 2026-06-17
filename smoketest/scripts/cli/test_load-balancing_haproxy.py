@@ -728,6 +728,46 @@ class TestLoadBalancingReverseProxy(VyOSUnitTestSHIM.TestCase):
         self.assertNotIn(f'bind {addr_busy}:{shared_port}', config)
         self.assertIn(f'bind [{addr_listen}]:{shared_port}', config)
 
+    def test_reverse_proxy_listen_address_lifecycle(self):
+        """T8977: adding then removing a listen-address must revert haproxy to wildcard."""
+        from vyos.utils.network import is_listen_port_bind_service
+
+        service = 'gw_tcp'
+        backend = 'srv1'
+        port = '4444'
+        addr = '127.0.0.1'  # use loopback so no real NIC is required
+        probe_addr = (
+            '127.0.0.3'  # differs from specific bind; wildcard should still match
+        )
+
+        svc_base = base_path + ['service', service]
+        self.cli_set(svc_base + ['mode', 'tcp'])
+        self.cli_set(svc_base + ['port', port])
+        self.cli_set(svc_base + ['backend', backend])
+        bknd_srv_base = base_path + ['backend', backend, 'server', 'srv1']
+        self.cli_set(bknd_srv_base + ['address', '127.0.0.2'])
+        self.cli_set(bknd_srv_base + ['port', '9999'])
+        self.cli_commit()
+
+        # Verify haproxy is listening on wildcard
+        self.assertTrue(
+            is_listen_port_bind_service(int(port), 'haproxy', address=probe_addr)
+        )
+
+        # Add a specific listen-address
+        self.cli_set(svc_base + ['listen-address', addr])
+        self.cli_commit()
+
+        self.assertTrue(is_listen_port_bind_service(int(port), 'haproxy', address=addr))
+
+        # Remove the listen-address — must revert to wildcard without error
+        self.cli_delete(svc_base + ['listen-address'])
+        self.cli_commit()
+
+        self.assertTrue(
+            is_listen_port_bind_service(int(port), 'haproxy', address=probe_addr)
+        )
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2, failfast=VyOSUnitTestSHIM.TestCase.debug_on())

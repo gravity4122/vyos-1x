@@ -410,11 +410,10 @@ def is_listen_port_bind_service(port: int, service: str, address: str = None) ->
 
         # Ignore address check when service listening on "any address",
         # service config might change from any to limited address scope
-        if has_address and addr.ip not in ('::', '0.0.0.0'):
-            if address == addr.ip and port == pid_port and service == pid_name:
+        if port == pid_port and service == pid_name:
+            if not has_address:
                 return True
-        else:
-            if service == pid_name and port == pid_port:
+            if addr.ip in ('::', '0.0.0.0') or address == addr.ip:
                 return True
 
     return False
