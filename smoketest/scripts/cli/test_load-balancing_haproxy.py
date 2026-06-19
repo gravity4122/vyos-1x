@@ -139,6 +139,74 @@ ZXLrtgVJR9W020qTurO2f91qfU8646n11hR9ObBB1IYbagOU0Pw1Nrq/FRp/u2tx
 haproxy_service_name = 'https_front'
 haproxy_backend_name = 'bk-01'
 
+
+def _net_connections(kind='inet'):
+    """
+    Fetches and deserializes network connections as elevated user,
+    ensuring PIDs are available.
+    """
+    from vyos.utils.process import cmd
+    import inspect
+    import json
+    import socket
+    import base64
+    import textwrap
+    from psutil._common import sconn, addr
+
+    def _fetch_and_serialize(kind='inet'):
+        import json
+        import psutil
+
+        def serialize(obj):
+            if hasattr(obj, '_asdict'):
+                return {key: serialize(value) for key, value in obj._asdict().items()}
+            elif hasattr(obj, 'name') and hasattr(obj, 'value'):
+                return obj.name
+            elif isinstance(obj, tuple):
+                return tuple(serialize(item) for item in obj)
+            return obj
+
+        connections = psutil.net_connections(kind=kind)
+        return json.dumps([serialize(conn) for conn in connections])
+
+    def _deserialize(json_string):
+        def parse_addr(addr_data):
+            if not addr_data:
+                return ()
+            return addr(ip=addr_data['ip'], port=addr_data['port'])
+
+        def parse_sconn(conn_data):
+            family_enum = getattr(
+                socket, conn_data.get('family', ''), conn_data.get('family')
+            )
+            type_enum = getattr(
+                socket, conn_data.get('type', ''), conn_data.get('type')
+            )
+
+            return sconn(
+                fd=conn_data.get('fd', -1),
+                family=family_enum,
+                type=type_enum,
+                laddr=parse_addr(conn_data.get('laddr')),
+                raddr=parse_addr(conn_data.get('raddr')),
+                status=conn_data.get('status', 'NONE'),
+                pid=conn_data.get('pid', None),
+            )
+
+        parsed_list = json.loads(json_string)
+        return [parse_sconn(conn) for conn in parsed_list]
+
+    fetch_source = textwrap.dedent(inspect.getsource(_fetch_and_serialize))
+    net_conn_cmd = f'{fetch_source}\nprint(_fetch_and_serialize(kind="{kind}"))'
+    encoded_cmd = base64.b64encode(net_conn_cmd.encode()).decode()
+    return _deserialize(
+        cmd(
+            f'/usr/bin/sudo /usr/bin/python3 -c '
+            f'"import base64; '
+            f'exec(base64.b64decode(\'{encoded_cmd}\'))"'
+        )
+    )
+
 def parse_haproxy_config() -> dict:
     config_str = read_file(HAPROXY_CONF)
     section_pattern = re.compile(r'^(global|defaults|frontend\s+\S+|backend\s+\S+)', re.MULTILINE)
@@ -730,43 +798,47 @@ class TestLoadBalancingReverseProxy(VyOSUnitTestSHIM.TestCase):
 
     def test_reverse_proxy_listen_address_lifecycle(self):
         """T8977: adding then removing a listen-address must revert haproxy to wildcard."""
+        from unittest.mock import patch
         from vyos.utils.network import is_listen_port_bind_service
 
-        service = 'gw_tcp'
-        backend = 'srv1'
         port = '4444'
         addr = '127.0.0.1'  # use loopback so no real NIC is required
         probe_addr = (
             '127.0.0.3'  # differs from specific bind; wildcard should still match
         )
 
-        svc_base = base_path + ['service', service]
+        svc_base = base_path + ['service', haproxy_service_name]
         self.cli_set(svc_base + ['mode', 'tcp'])
         self.cli_set(svc_base + ['port', port])
-        self.cli_set(svc_base + ['backend', backend])
-        bknd_srv_base = base_path + ['backend', backend, 'server', 'srv1']
+        self.cli_set(svc_base + ['backend', haproxy_backend_name])
+        bknd_srv_base = base_path + ['backend', haproxy_backend_name, 'server', 'srv1']
         self.cli_set(bknd_srv_base + ['address', '127.0.0.2'])
         self.cli_set(bknd_srv_base + ['port', '9999'])
         self.cli_commit()
 
         # Verify haproxy is listening on wildcard
-        self.assertTrue(
-            is_listen_port_bind_service(int(port), 'haproxy', address=probe_addr)
-        )
+        with patch('psutil.net_connections', return_value=_net_connections()):
+            self.assertTrue(
+                is_listen_port_bind_service(int(port), PROCESS_NAME, address=probe_addr)
+            )
 
         # Add a specific listen-address
         self.cli_set(svc_base + ['listen-address', addr])
         self.cli_commit()
 
-        self.assertTrue(is_listen_port_bind_service(int(port), 'haproxy', address=addr))
+        with patch('psutil.net_connections', return_value=_net_connections()):
+            self.assertTrue(
+                is_listen_port_bind_service(int(port), PROCESS_NAME, address=addr)
+            )
 
         # Remove the listen-address — must revert to wildcard without error
         self.cli_delete(svc_base + ['listen-address'])
         self.cli_commit()
 
-        self.assertTrue(
-            is_listen_port_bind_service(int(port), 'haproxy', address=probe_addr)
-        )
+        with patch('psutil.net_connections', return_value=_net_connections()):
+            self.assertTrue(
+                is_listen_port_bind_service(int(port), PROCESS_NAME, address=probe_addr)
+            )
 
 
 if __name__ == '__main__':
