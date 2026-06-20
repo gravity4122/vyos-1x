@@ -361,10 +361,13 @@ def check_port_availability(address: str = None, port: int = 0,
                 s.bind(sockaddr)
                 return True # port is free to use
         except OSError:
-            return False # port is already in use
+            # This address family is busy, but another might be free.
+            # Continue to the next one.
+            pass
 
-    # if we reach this point, no socket was tested and we assume the port is
-    # already in use - better safe then sorry
+    # If we reach this point, the port is already in use
+    # or no socket was tested, in which case it is safer
+    # to assume the port being in use
     return False
 
 
