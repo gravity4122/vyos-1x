@@ -32,6 +32,10 @@ HAPROXY_CONF = '/run/haproxy/haproxy.cfg'
 base_path = ['load-balancing', 'haproxy']
 proxy_interface = 'eth1'
 
+haproxy_service_name = 'https_front'
+haproxy_service_port = '4433'
+haproxy_backend_name = 'bk-01'
+
 valid_ca_cert = """
 MIIDnTCCAoWgAwIBAgIUewSDtLiZbhg1YEslMnqRl1shoPcwDQYJKoZIhvcNAQEL
 BQAwVzELMAkGA1UEBhMCR0IxEzARBgNVBAgMClNvbWUtU3RhdGUxEjAQBgNVBAcM
@@ -136,76 +140,6 @@ ZXLrtgVJR9W020qTurO2f91qfU8646n11hR9ObBB1IYbagOU0Pw1Nrq/FRp/u2tx
 7i7xFz2WEiQeSCPaKYOiqM3t
 """
 
-haproxy_service_name = 'https_front'
-haproxy_backend_name = 'bk-01'
-
-
-def _net_connections(kind='inet'):
-    """
-    Fetches and deserializes network connections as elevated user,
-    ensuring PIDs are available.
-    """
-    from vyos.utils.process import cmd
-    import inspect
-    import json
-    import socket
-    import base64
-    import textwrap
-    from psutil._common import sconn, addr
-
-    def _fetch_and_serialize(kind='inet'):
-        import json
-        import psutil
-
-        def serialize(obj):
-            if hasattr(obj, '_asdict'):
-                return {key: serialize(value) for key, value in obj._asdict().items()}
-            elif hasattr(obj, 'name') and hasattr(obj, 'value'):
-                return obj.name
-            elif isinstance(obj, tuple):
-                return tuple(serialize(item) for item in obj)
-            return obj
-
-        connections = psutil.net_connections(kind=kind)
-        return json.dumps([serialize(conn) for conn in connections])
-
-    def _deserialize(json_string):
-        def parse_addr(addr_data):
-            if not addr_data:
-                return ()
-            return addr(ip=addr_data['ip'], port=addr_data['port'])
-
-        def parse_sconn(conn_data):
-            family_enum = getattr(
-                socket, conn_data.get('family', ''), conn_data.get('family')
-            )
-            type_enum = getattr(
-                socket, conn_data.get('type', ''), conn_data.get('type')
-            )
-
-            return sconn(
-                fd=conn_data.get('fd', -1),
-                family=family_enum,
-                type=type_enum,
-                laddr=parse_addr(conn_data.get('laddr')),
-                raddr=parse_addr(conn_data.get('raddr')),
-                status=conn_data.get('status', 'NONE'),
-                pid=conn_data.get('pid', None),
-            )
-
-        parsed_list = json.loads(json_string)
-        return [parse_sconn(conn) for conn in parsed_list]
-
-    fetch_source = textwrap.dedent(inspect.getsource(_fetch_and_serialize))
-    net_conn_cmd = f'{fetch_source}\nprint(_fetch_and_serialize(kind="{kind}"))'
-    encoded_cmd = base64.b64encode(net_conn_cmd.encode()).decode()
-    return _deserialize(
-        cmd(
-            f'/usr/bin/sudo /usr/bin/python3 -c '
-            f'"import base64; '
-            f'exec(base64.b64decode(\'{encoded_cmd}\'))"'
-        )
-    )
 
 def parse_haproxy_config() -> dict:
     config_str = read_file(HAPROXY_CONF)
@@ -241,8 +175,13 @@ class TestLoadBalancingReverseProxy(VyOSUnitTestSHIM.TestCase):
 
     def base_config(self):
         self.cli_set(base_path + ['service', haproxy_service_name, 'mode', 'http'])
-        self.cli_set(base_path + ['service', haproxy_service_name, 'port', '4433'])
-        self.cli_set(base_path + ['service', haproxy_service_name, 'backend', haproxy_backend_name])
+        self.cli_set(
+            base_path + ['service', haproxy_service_name, 'port', haproxy_service_port]
+        )
+        self.cli_set(
+            base_path
+            + ['service', haproxy_service_name, 'backend', haproxy_backend_name]
+        )
 
         self.cli_set(base_path + ['backend', haproxy_backend_name, 'mode', 'http'])
         self.cli_set(base_path + ['backend', haproxy_backend_name, 'server', haproxy_backend_name, 'address', '192.0.2.11'])
@@ -798,47 +737,79 @@ class TestLoadBalancingReverseProxy(VyOSUnitTestSHIM.TestCase):
 
     def test_reverse_proxy_listen_address_lifecycle(self):
         """T8977: adding then removing a listen-address must revert haproxy to wildcard."""
-        from unittest.mock import patch
-        from vyos.utils.network import is_listen_port_bind_service
+        from vyos.utils.network import check_port_availability
 
-        port = '4444'
-        addr = '127.0.0.1'  # use loopback so no real NIC is required
-        probe_addr = (
-            '127.0.0.3'  # differs from specific bind; wildcard should still match
+        # Use loopback so no real NIC is required
+        addr_v4 = '127.0.0.1'
+        addr_v6 = '::1'
+        svc_laddr_base = base_path + ['service', haproxy_service_name, 'listen-address']
+
+        # Pre-test before service binds
+        # Check port availability without address (default to 'any'), must yield true
+        self.assertTrue(
+            check_port_availability(port=int(haproxy_service_port), protocol='tcp')
         )
 
-        svc_base = base_path + ['service', haproxy_service_name]
-        self.cli_set(svc_base + ['mode', 'tcp'])
-        self.cli_set(svc_base + ['port', port])
-        self.cli_set(svc_base + ['backend', haproxy_backend_name])
-        bknd_srv_base = base_path + ['backend', haproxy_backend_name, 'server', 'srv1']
-        self.cli_set(bknd_srv_base + ['address', '127.0.0.2'])
-        self.cli_set(bknd_srv_base + ['port', '9999'])
+        # Start without a specific listen-address (listen on 'any')
+        self.base_config()
         self.cli_commit()
 
-        # Verify haproxy is listening on wildcard
-        with patch('psutil.net_connections', return_value=_net_connections()):
-            self.assertTrue(
-                is_listen_port_bind_service(int(port), PROCESS_NAME, address=probe_addr)
-            )
+        # Check port availability without address (default to 'any'), must yield false
+        self.assertFalse(
+            check_port_availability(port=int(haproxy_service_port), protocol='tcp')
+        )
 
-        # Add a specific listen-address
-        self.cli_set(svc_base + ['listen-address', addr])
+        # Set a addr_v4 listen-address
+        self.cli_set(svc_laddr_base + [addr_v4])
         self.cli_commit()
 
-        with patch('psutil.net_connections', return_value=_net_connections()):
-            self.assertTrue(
-                is_listen_port_bind_service(int(port), PROCESS_NAME, address=addr)
+        # Check port availability without address (default to 'any'), must yield false
+        self.assertFalse(
+            check_port_availability(port=int(haproxy_service_port), protocol='tcp')
+        )
+        # Check port availability on addr_v4, must yield false
+        self.assertFalse(
+            check_port_availability(
+                address=addr_v4, port=int(haproxy_service_port), protocol='tcp'
             )
+        )
+        # Check port availability on addr_v6, must yield true
+        self.assertTrue(
+            check_port_availability(
+                address=addr_v6, port=int(haproxy_service_port), protocol='tcp'
+            )
+        )
 
-        # Remove the listen-address — must revert to wildcard without error
-        self.cli_delete(svc_base + ['listen-address'])
+        # Set a addr_v6 listen-address
+        self.cli_delete(svc_laddr_base)
+        self.cli_set(svc_laddr_base + [addr_v6])
         self.cli_commit()
 
-        with patch('psutil.net_connections', return_value=_net_connections()):
-            self.assertTrue(
-                is_listen_port_bind_service(int(port), PROCESS_NAME, address=probe_addr)
+        # Check port availability without address (default to 'any'), must yield false
+        self.assertFalse(
+            check_port_availability(port=int(haproxy_service_port), protocol='tcp')
+        )
+        # Check port availability on addr_v4, must yield true
+        self.assertTrue(
+            check_port_availability(
+                address=addr_v4, port=int(haproxy_service_port), protocol='tcp'
             )
+        )
+        # Check port availability on addr_v6, must yield false
+        self.assertFalse(
+            check_port_availability(
+                address=addr_v6, port=int(haproxy_service_port), protocol='tcp'
+            )
+        )
+
+        # Remove the specific listen-address
+        self.cli_delete(svc_laddr_base)
+        self.cli_commit()
+
+        # Check port availability without address (default to 'any'), must yield false
+        self.assertFalse(
+            check_port_availability(port=int(haproxy_service_port), protocol='tcp')
+        )
 
 
 if __name__ == '__main__':
