@@ -24,6 +24,7 @@ from vyos.configdep import set_dependents
 from vyos.configdep import call_dependents
 from vyos.configdict import get_interface_dict
 from vyos.configdict import is_node_changed
+from vyos.configdict import is_vrf_changed
 from vyos.configdict import get_flowtable_interfaces
 from vyos.configverify import verify_address
 from vyos.configverify import verify_dhcpv6
@@ -196,20 +197,8 @@ def get_config(config=None):
         set_dependents('static_arp', conf)
 
     # Check vrf membership, to ensure firewall is updated
-    # Parent interface
-    if is_node_changed(conf, base + [ifname, 'vrf']):
+    if is_vrf_changed(conf, ethernet):
         set_dependents('firewall', conf)
-    # vif interface
-    for vif in conf.list_nodes(base + [ifname, 'vif']):
-        if is_node_changed(conf, base + [ifname, 'vif', vif, 'vrf']):
-            set_dependents('firewall', conf)
-    # q-in-q interface
-    for vif_s in conf.list_nodes(base + [ifname, 'vif-s']):
-        if is_node_changed(conf, base + [ifname, 'vif-s', vif_s, 'vrf']):
-            set_dependents('firewall', conf)
-        for vif_c in conf.list_nodes(base + [ifname, 'vif-s', vif_s, 'vif-c']):
-            if is_node_changed(conf, base + [ifname, 'vif-s', vif_s, 'vif-c', vif_c, 'vrf']):
-                set_dependents('firewall', conf)
 
     return ethernet
 

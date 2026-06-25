@@ -22,6 +22,7 @@ from sys import exit
 from vyos.config import Config
 from vyos.configdict import get_interface_dict
 from vyos.configdict import is_node_changed
+from vyos.configdict import is_vrf_changed
 from vyos.configdict import is_source_interface
 from vyos.configdep import set_dependents
 from vyos.configdep import call_dependents
@@ -88,7 +89,7 @@ def get_config(config=None):
         wireguard['prev_vrf'] = prev.get('vrf')
 
     # Check vrf membership, to ensure firewall is updated
-    if is_node_changed(conf, base + [ifname, 'vrf']):
+    if is_vrf_changed(conf, wireguard):
         set_dependents('firewall', conf)
 
     return wireguard

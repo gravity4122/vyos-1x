@@ -18,6 +18,7 @@ import ipaddress
 from vyos.config import Config
 from vyos.configdict import get_interface_dict
 from vyos.configdict import is_node_changed
+from vyos.configdict import is_vrf_changed
 from vyos.configdep import set_dependents
 from vyos.configdep import call_dependents
 from vyos.configverify import verify_address
@@ -81,7 +82,7 @@ def get_config(config=None):
         del tunnel['parameters']['erspan']
 
     # Check vrf membership, to ensure firewall is updated
-    if is_node_changed(conf, base + [ifname, 'vrf']):
+    if is_vrf_changed(conf, tunnel):
         set_dependents('firewall', conf)
 
     return tunnel

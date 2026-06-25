@@ -20,7 +20,7 @@ from vyos.config import Config
 from vyos.configdep import set_dependents
 from vyos.configdep import call_dependents
 from vyos.configdict import get_interface_dict
-from vyos.configdict import is_node_changed
+from vyos.configdict import is_vrf_changed
 from vyos.configdict import leaf_node_changed
 from vyos.configverify import verify_address
 from vyos.configverify import verify_bridge_delete
@@ -64,7 +64,7 @@ def get_config(config=None):
         set_dependents('static_arp', conf)
 
     # Check vrf membership, to ensure firewall is updated
-    if is_node_changed(conf, base + [ifname, 'vrf']):
+    if is_vrf_changed(conf, l2tpv3):
         set_dependents('firewall', conf)
 
     return l2tpv3

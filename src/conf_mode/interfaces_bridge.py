@@ -18,7 +18,7 @@ from sys import exit
 
 from vyos.config import Config
 from vyos.configdict import get_interface_dict
-from vyos.configdict import is_node_changed
+from vyos.configdict import is_vrf_changed
 from vyos.configdict import node_changed
 from vyos.configdict import is_member
 from vyos.configdict import is_source_interface
@@ -131,15 +131,9 @@ def get_config(config=None):
         set_dependents('static_arp', conf)
 
     # Check vrf membership, to ensure firewall is updated
-    # Parent interface
-    if is_node_changed(conf, base + [ifname, 'vrf']):
+    if is_vrf_changed(conf, bridge):
         bridge.update({'vrf_changed': {}})
         set_dependents('firewall', conf)
-    # vif interface
-    for vif in conf.list_nodes(base + [ifname, 'vif']):
-        if is_node_changed(conf, base + [ifname, 'vif', vif, 'vrf']):
-            bridge.update({'vrf_changed': {}})
-            set_dependents('firewall', conf)
 
     bridge['vpp_ifaces'] = cli_ifaces_list(conf)
 
