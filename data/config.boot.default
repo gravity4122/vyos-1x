@@ -14,11 +14,11 @@ service {
             address "fe80::/10"
             address "fc00::/7"
         }
-        server time1.vyos.net {
+        server time1.google.com {
         }
-        server time2.vyos.net {
+        server time2.google.com {
         }
-        server time3.vyos.net {
+        server time3.google.com {
         }
     }
 }
@@ -26,16 +26,16 @@ system {
     config-management {
         commit-revisions "100"
     }
-    host-name "vyos"
+    host-name "devray"
     login {
         operator-group default {
             command-policy {
                 allow "*"
             }
         }
-        user vyos {
+        user devray {
             authentication {
-                encrypted-password "$6$QxPS.uk6mfo$9QBSo8u1FkH16gMyAVhus6fU3LOzvLR9Z9.82m3tiHFAxTtIkhaZSWssSgzt4v4dGAL8rhVQxTg0oAG9/q11h/"
+                encrypted-password "$6$1ZhuOl7RWCFd2AM2$q19i0aAFus.t1W/i8NMDAAyG6XHCxbVEsRhv3K1qIcMCCAw8PQ91Ld7efc88PEuVYQzhLHYLyThmDUOJAeHVl."
                 plaintext-password ""
             }
         }
