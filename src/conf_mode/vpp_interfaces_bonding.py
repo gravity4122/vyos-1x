@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) VyOS Inc.
+# Copyright (C) devray.in.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ from vyos.vpp.utils import cli_ifaces_list
 
 
 def _get_bond_mode(mode_name: str) -> int:
-    """Convert VyOS CLI name bonding mode to VPP compatible"""
+    """Convert DevGate CLI name bonding mode to VPP compatible"""
     mode_mapping = {
         'round-robin': 1,
         'active-backup': 2,
@@ -52,7 +52,7 @@ def _get_bond_mode(mode_name: str) -> int:
 
 
 def _get_bond_lb(lb_name: str) -> int:
-    """Convert VyOS CLI name bonding load balance to VPP compatible"""
+    """Convert DevGate CLI name bonding load balance to VPP compatible"""
     lb_mapping = {
         'layer2': 0,
         'layer2+3': 2,

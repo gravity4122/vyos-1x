@@ -10,7 +10,7 @@
         <children>
           <node name="api">
             <properties>
-              <help>VyOS HTTP API configuration</help>
+              <help>DevGate HTTP API configuration</help>
             </properties>
             <children>
               <node name="keys">

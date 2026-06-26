@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -292,7 +292,7 @@ def update_interfaces(config, node):
                         intf.operational.reset_peer(public_key=public_key)
 
 if __name__ == '__main__':
-    logger.info('VyOS domain resolver')
+    logger.info('DevGate domain resolver')
 
     count = 1
     while commit_in_progress():

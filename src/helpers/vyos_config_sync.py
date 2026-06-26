@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -120,7 +120,7 @@ def set_remote_config(
         mask: Dict[str, Any],
         config: Dict[str, Any],
         port: int) -> Optional[Dict[str, Any]]:
-    """Loads the VyOS configuration in JSON format to a remote host.
+    """Loads the DevGate configuration in JSON format to a remote host.
 
     Args:
         address (str): The address of the remote host.

@@ -2,8 +2,8 @@
 {% if interface is vyos_defined %}
 {%     for iface, iface_config in interface.items() %}
 interface {{ iface }}
- ip router isis VyOS
- ipv6 router isis VyOS
+ ip router isis DevGate
+ ipv6 router isis DevGate
 {%         if iface_config.bfd is vyos_defined %}
  isis bfd
 {%             if iface_config.bfd.profile is vyos_defined %}
@@ -83,7 +83,7 @@ exit
 {%     endfor %}
 {% endif %}
 !
-router isis VyOS {{ 'vrf ' + vrf if vrf is vyos_defined }}
+router isis DevGate {{ 'vrf ' + vrf if vrf is vyos_defined }}
  net {{ net }}
 {% if advertise_high_metrics is vyos_defined %}
 advertise-high-metrics

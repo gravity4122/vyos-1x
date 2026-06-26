@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) VyOS Inc.
+# Copyright (C) devray.in.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -608,7 +608,7 @@ def verify(config):
 
         if not _is_device_allowed(config, iface):
             raise ConfigError(
-                f'NIC used by "{iface}" is not validated for VPP on VyOS. '
+                f'NIC used by "{iface}" is not validated for VPP on DevGate. '
                 'Using it is unsafe and unsupported and will void support for the entire system. '
                 'To proceed at your own risk, enable: "set vpp settings allow-unsupported-nics".'
             )

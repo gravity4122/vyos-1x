@@ -1,4 +1,4 @@
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -402,7 +402,7 @@ class HttpC:
         session = Session()
         adapter = SourceAdapter(self.source_pair, vrf=self.vrf)
         session.mount(self.urlstring, adapter)
-        session.headers.update({'User-Agent': 'VyOS/' + get_version()})
+        session.headers.update({'User-Agent': 'DevGate/' + get_version()})
         if self.username:
             session.auth = self.username, self.password
         return session
@@ -438,7 +438,7 @@ class HttpC:
                             f.write(chunk)
                 else:
                     # We'll try to stream the download directly with `copyfileobj()` so that large
-                    #  files (like entire VyOS images) don't occupy much memory.
+                    #  files (like entire DevGate images) don't occupy much memory.
                     shutil.copyfileobj(r.raw, f)
 
     def upload(self, location: str):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -31,9 +31,9 @@ from vyos.template import render_to_string
 from vyos.utils.io import ask_input
 
 # Apple profiles only support one IKE/ESP encryption cipher and hash, whereas
-# VyOS comes with a multitude of different proposals for a connection.
+# DevGate comes with a multitude of different proposals for a connection.
 #
-# We take all available proposals from the VyOS CLI and ask the user which one
+# We take all available proposals from the DevGate CLI and ask the user which one
 # he would like to get enabled in his profile - thus there is limited possibility
 # to select a proposal that is not supported on the connection profile.
 #
@@ -156,11 +156,11 @@ if not conf.exists(config_base):
 if not conf.exists(pki_base):
     exit('PKI is not configured!')
 
-profile_name = 'VyOS IKEv2 Profile'
+profile_name = 'DevGate IKEv2 Profile'
 if args.profile:
     profile_name = args.profile
 
-vpn_name = 'VyOS IKEv2 VPN'
+vpn_name = 'DevGate IKEv2 VPN'
 if args.name:
     vpn_name = args.name
 
@@ -254,7 +254,7 @@ for _, proposal in ike_proposal.items():
             proposal['hash'] in set(vyos2client_integrity) and
             proposal['dh_group'] in set(vyos2client_dh_group)):
 
-            # We 're-code' from the VyOS IPsec proposals to the Apple naming scheme
+            # We 're-code' from the DevGate IPsec proposals to the Apple naming scheme
             proposal['encryption'] = vyos2client_cipher[ proposal['encryption'] ]
             proposal['hash'] = vyos2client_integrity[ proposal['hash'] ]
             # DH group will need to be transformed later after we calculate PFS group
@@ -268,7 +268,7 @@ count = 1
 for _, proposal in esp_group['proposal'].items():
     if {'encryption', 'hash'} <= set(proposal):
         if proposal['encryption'] in set(vyos2client_cipher) and proposal['hash'] in set(vyos2client_integrity):
-            # We 're-code' from the VyOS IPsec proposals to the Apple naming scheme
+            # We 're-code' from the DevGate IPsec proposals to the Apple naming scheme
             proposal['encryption'] = vyos2client_cipher[ proposal['encryption'] ]
             proposal['hash'] = vyos2client_integrity[ proposal['hash'] ]
             # Copy PFS setting from the group, if present (we will need to

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -165,7 +165,7 @@ def execute_item(item: BaseSpec, runner: Runner) -> None:
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
-    p = argparse.ArgumentParser(description='VyOS tech-support command collector')
+    p = argparse.ArgumentParser(description='DevGate tech-support command collector')
     p.add_argument(
         '--outdir',
         type=Path,
@@ -382,7 +382,7 @@ def show_kernel_interface_counters(r: Runner):
 
 REPORTS: dict[str, tuple[BaseSpec]] = {
     'vyos-main-info': (
-        CommandSpec('VyOS version and package info', op('show version')),
+        CommandSpec('DevGate version and package info', op('show version')),
         CommandSpec(
             'Running configuration (commands)', op('show configuration commands')
         ),
@@ -473,8 +473,8 @@ REPORTS: dict[str, tuple[BaseSpec]] = {
     ),
     'nftables-info': (
         CommandSpec('nftables ruleset', 'nft list ruleset'),
-        CommandSpec('VyOS firewall configuration', op('show firewall')),
-        CommandSpec('VyOS firewall zone policy', op('show firewall zone-policy')),
+        CommandSpec('DevGate firewall configuration', op('show firewall')),
+        CommandSpec('DevGate firewall zone policy', op('show firewall zone-policy')),
     ),
     'dpkg-and-modules-info': (
         CommandSpec('Installed packages', 'dpkg --list'),

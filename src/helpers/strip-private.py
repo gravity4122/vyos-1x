@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,7 @@ import sys
 
 from netaddr import IPNetwork, AddrFormatError
 
-parser = argparse.ArgumentParser(description='strip off private information from VyOS config')
+parser = argparse.ArgumentParser(description='strip off private information from DevGate config')
 
 strictness = parser.add_mutually_exclusive_group()
 strictness.add_argument('--loose', action='store_true', help='remove only information specified as arguments')

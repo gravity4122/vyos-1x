@@ -1,4 +1,4 @@
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -103,7 +103,7 @@ def _file(**kwargs):
 
 # a logger for stderr
 stderr = getLogger(
-	'VyOS Syslog',
+	'DevGate Syslog',
 	format=SHORT,
 	stream=sys.stderr,
 	address='/dev/log'
@@ -111,7 +111,7 @@ stderr = getLogger(
 
 # a logger to syslog
 syslog = getLogger(
-	'VyOS StdErr',
+	'DevGate StdErr',
 	format='%(message)s',
 	address='/dev/log'
 )
@@ -136,8 +136,8 @@ if __name__ == '__main__':
 	filelog.info('file test')
 
 	# create a combined logger
-	getLogger('VyOS', syslog=True, stream=sys.stdout, filename='/tmp/test')
+	getLogger('DevGate', syslog=True, stream=sys.stdout, filename='/tmp/test')
 
 	# recover the created logger from name
-	combined = getLogger('VyOS')
+	combined = getLogger('DevGate')
 	combined.info('combined test')

@@ -258,7 +258,7 @@
                 <properties>
                   <help>Default organization</help>
                 </properties>
-                <defaultValue>VyOS</defaultValue>
+                <defaultValue>DevGate</defaultValue>
               </leafNode>
             </children>
           </node>

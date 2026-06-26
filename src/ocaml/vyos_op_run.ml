@@ -1,7 +1,7 @@
 (*
  * vyos-op-run: the wrapper for executing operational mode commands.
  *
- * Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+ * Copyright Devray maintainers and contributors <maintainers@vyos.io>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 or later as
@@ -46,7 +46,7 @@ type options = {
   (* Enable debug output *)
   debug: bool;
 
-  (* The original VyOS command,
+  (* The original DevGate command,
      like "show interfaces ethernet",
      for debugging and for substitutions of $@/$*
    *)
@@ -56,7 +56,7 @@ type options = {
 let default_options = {
   dry_run = false;
   debug = false;
-  vyos_command = "<VyOS command is undefined>";
+  vyos_command = "<DevGate command is undefined>";
 }
 
 (* Exceptions and helpers *)
@@ -224,22 +224,22 @@ let is_admin () =
     let () = Logs.debug @@ fun m -> m "The user is root, permission checks will be skipped" in
     true
   else begin
-    (* Otherwise, check if the user is a VyOS admin *)
+    (* Otherwise, check if the user is a DevGate admin *)
     let admin_group = Unix.getgrnam vyos_admin_group_name in
     let user_groups = Unix.getgroups () in
     match (Array.find_opt ((=) admin_group.gr_gid) user_groups) with
     | Some _ ->
-      let () = Logs.debug @@ fun m -> m "The user is a VyOS admin, permission checks will be skipped" in
+      let () = Logs.debug @@ fun m -> m "The user is a DevGate admin, permission checks will be skipped" in
       true
     | None ->
-      let () = Logs.debug @@ fun m -> m "The user does not have VyOS admin permissions" in
+      let () = Logs.debug @@ fun m -> m "The user does not have DevGate admin permissions" in
       false
   end
 
 let has_unsafe_characters cmd =
   (* XXX: this function is highly restrictive now,
      until we are completely certain that shell escape
-     cannot happen down the line inside VyOS op mode scripts.
+     cannot happen down the line inside DevGate op mode scripts.
      Alphanumeric characters, hyphens, dots, and whitespace
      should allow operator users to use most commands
      that take interface names, FQDNs, and config entities
@@ -298,7 +298,7 @@ let check_command_permissions perms cmd =
       else aux perms gs cmd
   in
   let () = Logs.debug @@ fun m -> m "Checking if the user is allowed to execute the command" in
-  (* VyOS admins can execute any commands without restrictions *)
+  (* DevGate admins can execute any commands without restrictions *)
   if is_admin () then () else
   (* Operators are not allowed to execute commands
      with potentially unsafe characters in them *)
@@ -345,7 +345,7 @@ let run_external_command opts env command_tmpl =
   let env = [|
     (* A knowingly safe executable lookup path.
        Since we do not use /usr/local, we do not need to include that.
-       Executables in VyOS-specific directories are referred to by absolute paths
+       Executables in DevGate-specific directories are referred to by absolute paths
        in the operational command JSON cache,
        so we don't need to include those, either.
      *)
@@ -355,7 +355,7 @@ let run_external_command opts env command_tmpl =
     make_var "USER" user_pw_entry.pw_name;
     make_var "LOGNAME" user_pw_entry.pw_name;
     make_var "SHELL" user_pw_entry.pw_shell;
-    (* VyOS-specific variables *)
+    (* DevGate-specific variables *)
     make_var "vyos_data_dir" "/usr/share/vyos";
     make_var "vyos_validators_dir" "/usr/libexec/vyos/validators";
     make_var "vyos_completion_dir" "/usr/libexec/vyos/completion";
@@ -456,7 +456,7 @@ let rec run_vyos_command opts ?(env=[]) ?(parent="") node cmd_words =
 (* Command line argument parsing *)
 let usage_msg = Printf.sprintf {|Usage: %s [OPTIONS] <command>
 
-%s is the VyOS operational command wrapper.
+%s is the DevGate operational command wrapper.
 It is used by the CLI and can be used
 for running operational commands from scripts.
 
@@ -502,14 +502,14 @@ let () =
   let () = setup_logging debug in
   let op_defs = read_command_definitions () in
   let permissions = read_permissions () in
-  let () = Logs.debug @@ fun m -> m "Executing VyOS command [%s]" options.vyos_command in
+  let () = Logs.debug @@ fun m -> m "Executing DevGate command [%s]" options.vyos_command in
   try
     check_command_permissions permissions args;
     Unix.setuid 0;
     run_vyos_command options ~env:[] ~parent:"" op_defs args
   with
   | Permission_error ->
-    Printf.fprintf stderr "You do not have a permission to execute VyOS command [%s]\n"
+    Printf.fprintf stderr "You do not have a permission to execute DevGate command [%s]\n"
       options.vyos_command;
     exit 1
   | Invalid_command msg ->

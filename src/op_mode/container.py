@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -74,7 +74,7 @@ def _get_raw_data(command: str) -> list:
 
 def add_image(name: str):
     """ Pull image from container registry. If registry authentication
-    is defined within VyOS CLI, credentials are used to login before pull """
+    is defined within DevGate CLI, credentials are used to login before pull """
     from vyos.configquery import ConfigTreeQuery
 
     conf = ConfigTreeQuery()

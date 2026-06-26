@@ -28,13 +28,13 @@
                 <children>
                   <leafNode name="full">
                     <properties>
-                      <help>Show full settings, including QR code and commands for VyOS</help>
+                      <help>Show full settings, including QR code and commands for DevGate</help>
                     </properties>
                     <command>${vyos_op_scripts_dir}/show_openconnect_otp.py --user="$4" --info="full"</command>
                   </leafNode>
                   <leafNode name="key-hex">
                     <properties>
-                      <help>Show OTP authentication secret in Hex (used in VyOS config)</help>
+                      <help>Show OTP authentication secret in Hex (used in DevGate config)</help>
                     </properties>
                     <command>${vyos_op_scripts_dir}/show_openconnect_otp.py --user="$4" --info="key-hex"</command>
                   </leafNode>

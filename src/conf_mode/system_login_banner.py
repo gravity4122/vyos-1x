@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -31,7 +31,7 @@ POSTLOGIN_FILE = r'/etc/motd'
 POSTLOGIN_VYOS_FILE = r'/run/motd.d/01-vyos-nonproduction'
 
 default_config_data = {
-    'issue': 'Welcome to VyOS - \\n \\l\n\n',
+    'issue': 'Welcome to DevGate - \\n \\l\n\n',
     'issue_net': ''
 }
 

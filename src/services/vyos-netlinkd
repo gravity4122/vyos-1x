@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -166,7 +166,7 @@ def main():
     syslog.openlog(ident="vyos-netlinkd",
                    logoption=syslog.LOG_PID,
                    facility=syslog.LOG_DAEMON)
-    syslog.syslog(syslog.LOG_INFO, "VyOS Netlink listener daemon started.")
+    syslog.syslog(syslog.LOG_INFO, "DevGate Netlink listener daemon started.")
 
     # Subscribe to link and address notifications only (not routes/rules/neigh/...).
     ipr = IPRoute()

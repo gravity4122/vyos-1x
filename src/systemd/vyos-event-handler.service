@@ -1,5 +1,5 @@
 [Unit]
-Description=VyOS event handler
+Description=DevGate event handler
 After=network.target vyos-router.service
 
 [Service]

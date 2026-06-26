@@ -1,6 +1,6 @@
 #!/usr/share/vyos-http-api-tools/bin/python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -58,7 +58,7 @@ def load_server_config():
 
 
 app = FastAPI(debug=True,
-              title="VyOS API",
+              title="DevGate API",
               version="0.1.0")
 
 
@@ -74,7 +74,7 @@ def info(q: Annotated[InfoQueryParams, Query()]):
 
     prelogin_file = r'/etc/issue'
     hostname_file = r'/etc/hostname'
-    default = 'Welcome to VyOS'
+    default = 'Welcome to DevGate'
 
     try:
         res = {

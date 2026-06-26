@@ -1,4 +1,4 @@
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -60,7 +60,7 @@ REGEX_KERNEL_CMDLINE: str = r'^BOOT_IMAGE=/(?P<boot_type>boot|live)/((?P<image_v
 REGEX_GRUB_BOOT_OPTS: str = r'^\s*set boot_opts="(?P<boot_opts>[^$]+)"$'
 
 
-def install(drive_path: str, boot_dir: str, efi_dir: str, id: str = 'VyOS', chroot : str = "") -> None:
+def install(drive_path: str, boot_dir: str, efi_dir: str, id: str = 'DevGate', chroot : str = "") -> None:
     """Install GRUB for both BIOS and EFI modes (hybrid boot)
 
     Args:
@@ -111,10 +111,10 @@ def version_add(version_name: str,
                 root_dir: str = '',
                 boot_opts: str = '',
                 boot_opts_config = None) -> None:
-    """Add a new VyOS version to GRUB loader configuration
+    """Add a new DevGate version to GRUB loader configuration
 
     Args:
-        vyos_version (str): VyOS version name
+        vyos_version (str): DevGate version name
         root_dir (str): an optional path to the root directory.
         Defaults to empty.
         boot_opts (str): an optional boot options for Linux kernel.
@@ -134,10 +134,10 @@ def version_add(version_name: str,
 
 
 def version_del(vyos_version: str, root_dir: str = '') -> None:
-    """Delete a VyOS version from GRUB loader configuration
+    """Delete a DevGate version from GRUB loader configuration
 
     Args:
-        vyos_version (str): VyOS version name
+        vyos_version (str): DevGate version name
         root_dir (str): an optional path to the root directory.
         Defaults to empty.
     """
@@ -148,7 +148,7 @@ def version_del(vyos_version: str, root_dir: str = '') -> None:
 
 
 def version_list(root_dir: str = '') -> list[str]:
-    """Generate a list with installed VyOS versions
+    """Generate a list with installed DevGate versions
 
     Args:
         root_dir (str): an optional path to the root directory.

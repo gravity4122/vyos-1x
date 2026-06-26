@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -227,7 +227,7 @@ def verify_pki(openvpn):
 
         # If PSK settings are correct, warn about its deprecation
         DeprecationWarning('OpenVPN shared-secret support will be removed in future '\
-                           'VyOS versions. Please migrate your site-to-site tunnels to '\
+                           'DevGate versions. Please migrate your site-to-site tunnels to '\
                            'TLS. You can use self-signed certificates with peer fingerprint '\
                            'verification, consult the documentation for details.')
 
@@ -522,7 +522,7 @@ def verify(openvpn):
         if 'topology' in openvpn['server']:
             if openvpn['server']['topology'] == 'net30':
                 DeprecationWarning('Topology net30 is deprecated '\
-                                   'and will be removed in future VyOS versions. '\
+                                   'and will be removed in future DevGate versions. '\
                                    'Switch to "subnet" or "p2p"'
                 )
 

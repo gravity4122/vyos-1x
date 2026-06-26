@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -31,7 +31,7 @@ from vyos.utils.system import get_secure_boot_state
 from jinja2 import Template
 
 version_output_tmpl = """
-Version:          VyOS {{version}}
+Version:          DevGate {{version}}
 Release train:    {{release_train}}
 Release flavor:   {{flavor}}
 

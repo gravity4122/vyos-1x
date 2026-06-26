@@ -172,7 +172,7 @@ then dead "Missing password file"
 fi
 
 if [ ! -d /opt/vyatta/etc/config ]
-then dead "Missing VyOS config directory /opt/vyatta/etc/config"
+then dead "Missing DevGate config directory /opt/vyatta/etc/config"
 fi
 
 # Leftover from V3.0

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This file is part of VyOS.
 #
@@ -88,8 +88,8 @@ MSG_ERR_MISSING_ARCHITECTURE: str = 'The new image version data does not specify
 MSG_ERR_MISSING_FLAVOR: str = 'The new image version data does not specify flavor, cannot check compatibility (is it a legacy release image?)'
 MSG_ERR_CORRUPT_CURRENT_IMAGE: str = 'Version data in the current image is malformed: missing flavor and/or architecture fields. Upgrade compatibility cannot be checked.'
 MSG_ERR_UNSUPPORTED_SIGNATURE_TYPE: str = 'Unsupported signature type, signature cannot be verified.'
-MSG_INFO_INSTALL_WELCOME: str = 'Welcome to VyOS installation!\nThis command will install VyOS to your permanent storage.'
-MSG_INFO_INSTALL_EXIT: str = 'Exiting from VyOS installation'
+MSG_INFO_INSTALL_WELCOME: str = 'Welcome to DevGate installation!\nThis command will install DevGate to your permanent storage.'
+MSG_INFO_INSTALL_EXIT: str = 'Exiting from DevGate installation'
 MSG_INFO_INSTALL_SUCCESS: str = 'The image installed successfully; please reboot now.'
 MSG_INFO_INSTALL_DISKS_LIST: str = 'The following disks were found:'
 MSG_INFO_INSTALL_DISK_SELECT: str = 'Which one should be used for installation?'
@@ -1099,7 +1099,7 @@ def install_image() -> None:
         exit()
 
     except Exception as err:
-        print(f'Unable to install VyOS: {err}')
+        print(f'Unable to install DevGate: {err}')
         # unmount filesystems and cleanup
         try:
             if install_target is not None:

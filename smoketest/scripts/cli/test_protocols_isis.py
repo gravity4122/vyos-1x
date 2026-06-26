@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -24,7 +24,7 @@ from vyos.utils.process import process_named_running
 from vyos.frrender import isis_daemon
 
 base_path = ['protocols', 'isis']
-domain = 'VyOS'
+domain = 'DevGate'
 net = '49.0001.1921.6800.1002.00'
 
 class TestProtocolsISIS(VyOSUnitTestSHIM.TestCase):

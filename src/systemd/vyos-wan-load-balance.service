@@ -1,5 +1,5 @@
 [Unit]
-Description=VyOS WAN Load Balancer
+Description=DevGate WAN Load Balancer
 After=vyos-router.service
 
 [Service]

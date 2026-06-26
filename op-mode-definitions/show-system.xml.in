@@ -123,7 +123,7 @@
                         <children>
                           <leafNode name="full">
                             <properties>
-                              <help>Show full settings, including QR code and commands for VyOS</help>
+                              <help>Show full settings, including QR code and commands for DevGate</help>
                             </properties>
                             <command>${vyos_op_scripts_dir}/otp.py show_login --username="$6" --info="full"</command>
                           </leafNode>
@@ -171,13 +171,13 @@
                   </leafNode>
                   <leafNode name="other">
                     <properties>
-                      <help>Show information about non VyOS user accounts</help>
+                      <help>Show information about non DevGate user accounts</help>
                     </properties>
                     <command>${vyos_op_scripts_dir}/show_users.py other</command>
                   </leafNode>
                   <leafNode name="vyos">
                     <properties>
-                      <help>Show information about VyOS user accounts</help>
+                      <help>Show information about DevGate user accounts</help>
                     </properties>
                     <command>${vyos_op_scripts_dir}/show_users.py vyos</command>
                   </leafNode>

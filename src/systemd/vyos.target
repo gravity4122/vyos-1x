@@ -1,3 +1,3 @@
 [Unit]
-Description=VyOS target
+Description=DevGate target
 After=multi-user.target vyos-grub-update.service systemd-sysctl.service

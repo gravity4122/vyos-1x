@@ -4,7 +4,7 @@
     <children>
       <node name="root-partition-auto-resize">
         <properties>
-          <help>Resize the VyOS partition</help>
+          <help>Resize the DevGate partition</help>
         </properties>
         <command>${vyos_op_scripts_dir}/force_root-partition-auto-resize.sh</command>
       </node>

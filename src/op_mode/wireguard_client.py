@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -31,9 +31,9 @@ if os.geteuid() != 0:
 
 server_config = """WireGuard client configuration for interface: {{ interface }}
 
-To enable this configuration on a VyOS router you can use the following commands:
+To enable this configuration on a DevGate router you can use the following commands:
 
-=== VyOS (server) configuration ===
+=== DevGate (server) configuration ===
 
 {% for addr in address if address is defined %}
 set interfaces wireguard {{ interface }} peer {{ name }} allowed-ips '{{ addr }}'

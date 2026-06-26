@@ -11,7 +11,7 @@
             <children>
               <node name="sync">
                 <properties>
-                  <help>Show differences between local configuration and remote VyOS instance</help>
+                  <help>Show differences between local configuration and remote DevGate instance</help>
                 </properties>
                 <!-- No source, no section, no commands -->
                 <command>${vyos_op_scripts_dir}/config_sync.py show_sync_diff</command>

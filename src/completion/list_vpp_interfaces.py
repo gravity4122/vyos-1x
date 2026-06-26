@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) VyOS Inc.
+# Copyright (C) devray.in.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public

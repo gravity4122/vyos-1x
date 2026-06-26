@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -484,7 +484,7 @@ gen_duid ()
 
 start ()
 {
-    log_success_msg "Starting VyOS router"
+    log_success_msg "Starting DevGate router"
 
     # reset and clean config files
     security_reset || log_failure_msg "security reset failed"
@@ -514,7 +514,7 @@ start ()
     gen_duid || log_failure_msg "could not generate DUID"
 
     # Mount a temporary filesystem for container networks.
-    # Configuration should be loaded from VyOS cli.
+    # Configuration should be loaded from DevGate cli.
     cni_dir="/etc/cni/net.d"
     [ ! -d ${cni_dir} ] && mkdir -p ${cni_dir}
     mount -t tmpfs none ${cni_dir}
@@ -578,7 +578,7 @@ start ()
         update-ca-certificates >/dev/null 2>&1
     fi
 
-    log_action_begin_msg "Mounting VyOS Config"
+    log_action_begin_msg "Mounting DevGate Config"
     # ensure the vyatta_configdir supports a large number of inodes since
     # the config hierarchy is often inode-bound (instead of size).
     # impose a minimum and then scale up dynamically with the actual size
@@ -694,7 +694,7 @@ start ()
 stop()
 {
     local -i status=0
-    log_daemon_msg "Stopping VyOS router"
+    log_daemon_msg "Stopping DevGate router"
 
     # As vyos-netlinkd consumes a configuration, we need to stop it prior
     # unmounting /config
@@ -707,7 +707,7 @@ stop()
     let status\|=$?
     done
     log_end_msg $status
-    log_action_begin_msg "Un-mounting VyOS Config"
+    log_action_begin_msg "Un-mounting DevGate Config"
     umount ${vyatta_configdir}
     log_action_end_msg $?
 

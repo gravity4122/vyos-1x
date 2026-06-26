@@ -1,4 +1,4 @@
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -77,7 +77,7 @@ component_version_json = os.path.join(directories['data'], 'component-versions.j
 config_default = os.path.join(directories['data'], 'config.boot.default')
 
 rt_symbolic_names = {
-  # Standard routing tables for Linux & reserved IDs for VyOS
+  # Standard routing tables for Linux & reserved IDs for DevGate
   'default': 253, # Confusingly, a final fallthru, not the default.
   'main': 254,    # The actual global table used by iproute2 unless told otherwise.
   'local': 255,   # Special kernel loopback table.
@@ -97,7 +97,7 @@ commit_hooks = {'pre': '/etc/commit/pre-hooks.d',
 airbag_noteworthy_size = 20
 
 SSH_DSA_DEPRECATION_WARNING: str = \
-'Support for SSH-DSA keys is deprecated and will be removed in VyOS 1.6. ' \
+'Support for SSH-DSA keys is deprecated and will be removed in DevGate 1.6. ' \
 'Please update affected keys to a supported algorithm (e.g., RSA, ECDSA or ' \
 'ED25519) to avoid authentication failures after the upgrade.'
 

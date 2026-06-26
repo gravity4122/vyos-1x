@@ -7,18 +7,18 @@ Upstream Author:
     <maintainers@vyos.net>
 
 Copyright:
-    Copyright VyOS Networks <maintainers@vyos.io>
+    Copyright DevGate Networks <maintainers@vyos.io>
     All Rights Reserved.
 
 Files: *
-Copyright: VyOS Networks
+Copyright: DevGate Networks
 License: GPL-2+
 
 Files: python/vyos/config.py
        python/vyos/configsession.py
        python/vyos/configtree.py
        python/vyos/opmode.py
-Copyright: VyOS Networks
+Copyright: DevGate Networks
 License: LGPL-2.1+
 
 

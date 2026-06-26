@@ -397,8 +397,8 @@ Depends:
   stunnel4,
   uidmap
 ## End optional utilities
-Description: VyOS configuration scripts and data
- VyOS configuration scripts, interface definitions, and everything
+Description: DevGate configuration scripts and data
+ DevGate configuration scripts, interface definitions, and everything
 
 Package: libvyosconfig0
 Architecture: any
@@ -413,9 +413,9 @@ Depends:
  vyos-1x,
 # For "service aws glb"
  aws-gwlbtun,
-Description: VyOS configuration scripts and data for AWS Gateway Load Balancer
+Description: DevGate configuration scripts and data for AWS Gateway Load Balancer
  Adds configuration files required for AWS Gateway Load Balancer service
- running on top of VyOS.
+ running on top of DevGate.
 
 Package: vyos-1x-smoketest
 Architecture: all
@@ -423,15 +423,15 @@ Depends:
  skopeo,
  vyos-1x,
  vmtouch
-Description: VyOS build sanity checking toolkit
+Description: DevGate build sanity checking toolkit
 
 Package: vyos-1x-vmware
 Architecture: all
 Depends:
  vyos-1x,
  open-vm-tools
-Description: VyOS configuration scripts and data for VMware
- Adds configuration files required for VyOS running on VMware hosts.
+Description: DevGate configuration scripts and data for VMware
+ Adds configuration files required for DevGate running on VMware hosts.
 
 Package: vyos-user-utils
 Architecture: all
@@ -464,5 +464,5 @@ Depends:
   openssh-client,
   screen,
   sipcalc
-Description: VyOS user utilities metapackage
- Installs utilities that are provided for the users but not used by VyOS scripts.
+Description: DevGate user utilities metapackage
+ Installs utilities that are provided for the users but not used by DevGate scripts.

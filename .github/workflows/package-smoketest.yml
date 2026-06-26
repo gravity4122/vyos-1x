@@ -1,4 +1,4 @@
-name: VyOS ISO Integration Test
+name: DevGate ISO Integration Test
 
 on:
   workflow_dispatch:
@@ -211,7 +211,7 @@ jobs:
           name: vyos-${{ needs.build_iso.outputs.build_version }}
           path: build
 
-      - name: VyOS CLI smoketests (no interfaces)
+      - name: DevGate CLI smoketests (no interfaces)
         id: test
         shell: bash
         run: |
@@ -245,7 +245,7 @@ jobs:
           name: vyos-${{ needs.build_iso.outputs.build_version }}
           path: build
 
-      - name: VyOS CLI smoketests VPP
+      - name: DevGate CLI smoketests VPP
         id: test
         shell: bash
         run: |
@@ -278,7 +278,7 @@ jobs:
           name: vyos-${{ needs.build_iso.outputs.build_version }}
           path: build
 
-      - name: VyOS CLI smoketests (interfaces only)
+      - name: DevGate CLI smoketests (interfaces only)
         id: test
         shell: bash
         run: |
@@ -311,7 +311,7 @@ jobs:
           name: vyos-${{ needs.build_iso.outputs.build_version }}
           path: build
 
-      - name: VyOS config load tests
+      - name: DevGate config load tests
         id: test
         shell: bash
         run: |
@@ -345,7 +345,7 @@ jobs:
           name: vyos-${{ needs.build_iso.outputs.build_version }}
           path: build
 
-      - name: VyOS config load tests VPP
+      - name: DevGate config load tests VPP
         id: test
         shell: bash
         run: |
@@ -378,7 +378,7 @@ jobs:
           name: vyos-${{ needs.build_iso.outputs.build_version }}
           path: build
 
-      - name: VyOS RAID1 installation tests
+      - name: DevGate RAID1 installation tests
         id: test
         shell: bash
         run: |
@@ -412,7 +412,7 @@ jobs:
           name: vyos-${{ needs.build_iso.outputs.build_version }}
           path: build
 
-      - name: VyOS TPM encryption tests
+      - name: DevGate TPM encryption tests
         id: test
         shell: bash
         run: |

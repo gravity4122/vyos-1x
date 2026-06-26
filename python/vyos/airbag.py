@@ -1,4 +1,4 @@
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -130,7 +130,7 @@ def _intercepting_exceptions(_singleton=[False]):
 
 FAULT = """\
 Report time:      {date}
-Image version:    VyOS {version}
+Image version:    DevGate {version}
 Release train:    {release_train}
 
 Built by:         {built_by}
@@ -152,9 +152,9 @@ Hardware UUID:    {hardware_uuid}
 """
 
 INTRO = """\
-VyOS had an issue completing a command.
+DevGate had an issue completing a command.
 
-We are sorry that you encountered a problem while using VyOS.
+We are sorry that you encountered a problem while using DevGate.
 There are a few things you can do to help us (and yourself):
 {instructions}
 
@@ -168,7 +168,7 @@ When reporting problems, please include as much information as possible:
 INSTRUCTIONS = """\
 - Contact us using the online help desk if you have a subscription:
   https://support.vyos.io/
-- Make sure you are running the latest version of VyOS available at:
+- Make sure you are running the latest version of DevGate available at:
   https://vyos.net/get/
 - Consult the community forum to see how to handle this issue:
   https://forum.vyos.io

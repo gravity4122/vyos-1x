@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) VyOS Inc.
+# Copyright (C) devray.in.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@ from vyos.template import bracketize_ipv6
 
 
 class ApiError(Exception):
-    """Generic VyOS HTTP API client error"""
+    """Generic DevGate HTTP API client error"""
 
 
 class ApiAuthError(ApiError):
@@ -55,17 +55,17 @@ class ApiClientConfig:
 
 
 class ApiClient:
-    """Small helper for talking to VyOS HTTP API using requests.
+    """Small helper for talking to DevGate HTTP API using requests.
 
     Design goals:
     - minimal surface area (thin wrapper around requests)
     - consistent error handling + typed exceptions
-    - safe defaults for VyOS typical self-signed HTTPS usage (verify_tls=False)
+    - safe defaults for DevGate typical self-signed HTTPS usage (verify_tls=False)
     """
 
     _DEFAULT_HEADERS = {
         'Content-Type': 'application/json',
-        'User-Agent': f'VyOS/{get_version()}',
+        'User-Agent': f'DevGate/{get_version()}',
     }
 
     def __init__(self, config: ApiClientConfig):
@@ -108,7 +108,7 @@ class ApiClient:
         if not endpoint.startswith('/'):
             endpoint = f'/{endpoint}'
 
-        # Most VyOS endpoints in this repo expect 'key' inside body.
+        # Most DevGate endpoints in this repo expect 'key' inside body.
         body = dict(payload)
         body.setdefault('key', self._cfg.key)
 

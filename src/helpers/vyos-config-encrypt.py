@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -290,7 +290,7 @@ if __name__ == '__main__':
             need_recovery = True
 
     if args.enable and not tpm_exists:
-        print('WARNING: VyOS will boot into a default config when encrypted without a TPM')
+        print('WARNING: DevGate will boot into a default config when encrypted without a TPM')
         print('You will need to manually login with default credentials and use "encryption load"')
         print(f'to mount the encrypted volume and use "load {mount_path}/config.boot"')
 

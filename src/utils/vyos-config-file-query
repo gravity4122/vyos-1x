@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright VyOS maintainers and contributors <maintainers@vyos.io>
+# Copyright Devray maintainers and contributors <maintainers@vyos.io>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 or later as
@@ -26,8 +26,8 @@ import vyos.configtree
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-p', '--path', type=str,
-    help="VyOS config node, e.g. \"system config-management commit-revisions\"", required=True)
-arg_parser.add_argument('-f', '--file', type=str, help="VyOS config file, e.g. /config/config.boot", required=True)
+    help="DevGate config node, e.g. \"system config-management commit-revisions\"", required=True)
+arg_parser.add_argument('-f', '--file', type=str, help="DevGate config file, e.g. /config/config.boot", required=True)
 
 arg_parser.add_argument('-s', '--separator', type=str, default=' ', help="Value separator for the plain format")
 arg_parser.add_argument('-j', '--json', action='store_true')

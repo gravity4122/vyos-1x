@@ -721,7 +721,7 @@
             </properties>
             <defaultValue>g</defaultValue>
           </leafNode>
-          <!-- background_radar_detection not yet supported by VyOS's hostapd
+          <!-- background_radar_detection not yet supported by DevGate's hostapd
           <leafNode name="background-radar-detection">
             <properties>
               <help>Enabling background radar detection feature allows CAC to be run on dedicated radio RF chains while the radio(s) are otherwise running normal AP activities on other channels.</help>
