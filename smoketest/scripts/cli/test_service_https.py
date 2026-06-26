@@ -30,6 +30,7 @@ from vyos.utils.file import write_file
 from vyos.utils.process import call
 from vyos.utils.process import cmd
 from vyos.utils.process import process_named_running
+from vyos.pki import CERT_BEGIN
 from vyos.xml_ref import default_value
 
 from vyos.configsession import ConfigSessionError
@@ -59,6 +60,50 @@ key_data = """
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgPLpD0Ohhoq0g4nhx
 2KMIuze7ucKUt/lBEB2wc03IxXyhRANCAATTUestw222qrj8+2gy5rysxYSQ50G7
 u8/3jHMM7sDwL3aWzW/zp54/LhCWUoLMjDdDEEigK4fal4ZF9aA9F0Ww
+"""
+
+# A complete CA chain used to verify that the HTTPS server emits the full
+# certificate chain (leaf certificate -> intermediate CA -> root CA). These are
+# the same long-lived EC test certificates shared with base_interfaces_test.py.
+chain_root_ca_data = """
+MIIBcDCCARagAwIBAgIUZmoW2xVdwkZSvglnkCq0AHKa6zIwCgYIKoZIzj0EAwIw
+HjEcMBoGA1UEAwwTVnlPUyBjbGllbnQgcm9vdCBDQTAeFw0yMjAyMTcxOTQxMjFa
+Fw0zMjAyMTUxOTQxMjFaMB4xHDAaBgNVBAMME1Z5T1MgY2xpZW50IHJvb3QgQ0Ew
+WTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATUpKXzQk2NOVKDN4VULk2yw4mOKPvn
+mg947+VY7lbpfOfAUD0QRg95qZWCw899eKnXp/U4TkAVrmEKhUb6OJTFozIwMDAP
+BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTXu6xGWUl25X3sBtrhm3BJSICIATAK
+BggqhkjOPQQDAgNIADBFAiEAnTzEwuTI9bz2Oae3LZbjP6f/f50KFJtjLZFDbQz7
+DpYCIDNRHV8zBUibC+zg5PqMpQBKd/oPfNU76nEv6xkp/ijO
+"""
+
+chain_intermediate_ca_data = """
+MIIBmDCCAT+gAwIBAgIUJEMdotgqA7wU4XXJvEzDulUAGqgwCgYIKoZIzj0EAwIw
+HjEcMBoGA1UEAwwTVnlPUyBjbGllbnQgcm9vdCBDQTAeFw0yMjAyMTcxOTQxMjJa
+Fw0zMjAyMTUxOTQxMjJaMCYxJDAiBgNVBAMMG1Z5T1MgY2xpZW50IGludGVybWVk
+aWF0ZSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABGyIVIi217s9j3O+WQ2b
+6R65/Z0ZjQpELxPjBRc0CA0GFCo+pI5EvwI+jNFArvTAJ5+ZdEWUJ1DQhBKDDQdI
+avCjUzBRMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFOUS8oNJjChB1Rb9Blcl
+ETvziHJ9MB8GA1UdIwQYMBaAFNe7rEZZSXblfewG2uGbcElIgIgBMAoGCCqGSM49
+BAMCA0cAMEQCIArhaxWgRsAUbEeNHD/ULtstLHxw/P97qPUSROLQld53AiBjgiiz
+9pDfISmpekZYz6bIDWRIR0cXUToZEMFNzNMrQg==
+"""
+
+chain_cert_data = """
+MIIBmTCCAUCgAwIBAgIUV5T77XdE/tV82Tk4Vzhp5BIFFm0wCgYIKoZIzj0EAwIw
+JjEkMCIGA1UEAwwbVnlPUyBjbGllbnQgaW50ZXJtZWRpYXRlIENBMB4XDTIyMDIx
+NzE5NDEyMloXDTMyMDIxNTE5NDEyMlowIjEgMB4GA1UEAwwXVnlPUyBjbGllbnQg
+Y2VydGlmaWNhdGUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARuyynqfc/qJj5e
+KJ03oOH8X4Z8spDeAPO9WYckMM0ldPj+9kU607szFzPwjaPWzPdgyIWz3hcN8yAh
+CIhytmJao1AwTjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBTIFKrxZ+PqOhYSUqnl
+TGCUmM7wTjAfBgNVHSMEGDAWgBTlEvKDSYwoQdUW/QZXJRE784hyfTAKBggqhkjO
+PQQDAgNHADBEAiAvO8/jvz05xqmP3OXD53XhfxDLMIxzN4KPoCkFqvjlhQIgIHq2
+/geVx3rAOtSps56q/jiDouN/aw01TdpmGKVAa9U=
+"""
+
+chain_key_data = """
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgxaxAQsJwjoOCByQE
++qSYKtKtJzbdbOnTsKNSrfgkFH6hRANCAARuyynqfc/qJj5eKJ03oOH8X4Z8spDe
+APO9WYckMM0ldPj+9kU607szFzPwjaPWzPdgyIWz3hcN8yAh
 """
 
 dh_1024 = """
@@ -242,6 +287,68 @@ class TestHTTPSService(VyOSUnitTestSHIM.TestCase):
         self.cli_commit()
         self.assertTrue(process_named_running(PROCESS_NAME))
         self.debug = False
+
+    def test_certificate_chain(self):
+        # The HTTPS server must serve the full certificate chain: the server
+        # certificate followed by every intermediate CA certificate available
+        # in the PKI, up to and including the root. Without the intermediate
+        # CA, clients that do not already trust it can not validate the
+        # presented server certificate (e.g. Let's Encrypt intermediates).
+        cert_name = 'https-chain'
+        root_ca_name = 'https-chain-root'
+        intermediate_ca_name = 'https-chain-intermediate'
+
+        self.cli_set(
+            pki_base
+            + ['ca', root_ca_name, 'certificate', chain_root_ca_data.replace('\n', '')]
+        )
+        self.cli_set(
+            pki_base
+            + [
+                'ca',
+                intermediate_ca_name,
+                'certificate',
+                chain_intermediate_ca_data.replace('\n', ''),
+            ]
+        )
+        self.cli_set(
+            pki_base
+            + [
+                'certificate',
+                cert_name,
+                'certificate',
+                chain_cert_data.replace('\n', ''),
+            ]
+        )
+        self.cli_set(
+            pki_base
+            + [
+                'certificate',
+                cert_name,
+                'private',
+                'key',
+                chain_key_data.replace('\n', ''),
+            ]
+        )
+
+        # Reference only the leaf certificate - the intermediate CA chain must
+        # be discovered from the PKI and served automatically.
+        self.cli_set(base_path + ['certificates', 'certificate', cert_name])
+        self.cli_commit()
+
+        self.assertTrue(process_named_running(PROCESS_NAME))
+
+        # leaf certificate + intermediate CA + root CA == 3 certificates
+        cert_file = f'/run/nginx/certs/{cert_name}_cert.pem'
+        self.assertEqual(read_file(cert_file).count(CERT_BEGIN), 3)
+
+        # Explicitly configuring the issuing CA via "ca-certificate" must stay
+        # backwards compatible and must not duplicate certificates in the chain.
+        self.cli_set(
+            base_path + ['certificates', 'ca-certificate', intermediate_ca_name]
+        )
+        self.cli_commit()
+        self.assertEqual(read_file(cert_file).count(CERT_BEGIN), 3)
 
     def test_api_missing_keys(self):
         self.cli_set(base_path + ['api'])
