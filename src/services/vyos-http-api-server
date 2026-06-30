@@ -213,10 +213,14 @@ def initialization(session: SessionState, app: FastAPI = app):
     # add REST routes
     if session.rest:
         from api.rest.routers import rest_init
+        from api.gui.routers import gui_init
         rest_init(app)
+        gui_init(app)
     else:
         from api.rest.routers import rest_clear
+        from api.gui.routers import gui_clear
         rest_clear(app)
+        gui_clear(app)
 
     # add GraphQL route
     if session.graphql:

@@ -18,12 +18,10 @@
 # pylint: disable=wildcard-import,unused-wildcard-import
 # pylint: disable=broad-exception-caught
 
-import asyncio
 import json
 import copy
 import logging
 import traceback
-from threading import Lock
 from typing import Union
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -32,7 +30,6 @@ from fastapi import Depends
 from fastapi import Query
 from fastapi import Request
 from fastapi import Response
-from fastapi import HTTPException
 from fastapi import APIRouter
 from fastapi import BackgroundTasks
 from fastapi.routing import APIRoute
@@ -48,13 +45,14 @@ from vyos.configtree import ConfigTree
 from vyos.configdiff import get_config_diff
 from vyos.configsession import ConfigSessionError
 
+from ..auth import auth_required
 from ..background import BackgroundOpManager
 from ..background import BackgroundOpError
+from ..locks import config_lock
 from ..session import SessionState
 from .models import success
 from .models import error
 from .models import responses
-from .models import ApiModel
 from .models import ConfigureModel
 from .models import ConfirmModel
 from .models import ConfigureListModel
@@ -84,27 +82,7 @@ if TYPE_CHECKING:
 
 LOG = logging.getLogger('http_api.routers')
 
-lock = Lock()
-
-asynclock = asyncio.Lock()
-
-def check_auth(key_list, key):
-    key_id = None
-    for k in key_list:
-        if k['key'] == key:
-            key_id = k['id']
-    return key_id
-
-
-def auth_required(data: ApiModel):
-    session = SessionState()
-    key = data.key
-    api_keys = session.keys
-    key_id = check_auth(api_keys, key)
-    if not key_id:
-        raise HTTPException(status_code=401, detail='Valid API key is required')
-    session.id = key_id
-
+lock = config_lock
 
 # override Request and APIRoute classes in order to convert form request to json;
 # do all explicit validation here, for backwards compatibility of error messages;
@@ -667,8 +645,8 @@ async def config_file_op(data: ConfigFileModel, background_tasks: BackgroundTask
     # A non-zero confirm_time will start commit-confirm timer on commit
     confirm_time = data.confirm_time
 
-    # Serialize config operations without blocking the event loop
-    async with asynclock:
+    # Serialize config operations with other REST and GUI config mutations
+    with lock:
         try:
             if op == 'save':
                 path = data.file or '/config/config.boot'
@@ -697,9 +675,9 @@ async def config_file_op(data: ConfigFileModel, background_tasks: BackgroundTask
 
                 if not d.is_node_changed(['service', 'https']):
                     if confirm_time:
-                        out, err = await run_in_threadpool(run_commit_confirm, state)
+                        out, err = run_commit_confirm(state)
                     else:
-                        out, err = await run_in_threadpool(run_commit, state)
+                        out, err = run_commit(state)
 
                     if err:
                         raise err

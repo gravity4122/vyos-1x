@@ -121,6 +121,7 @@ override_dh_auto_install:
 
 	# Create localui dir
 	mkdir -p $(DIR)/$(VYOS_LOCALUI_DIR)
+	cp -r src/localui/* $(DIR)/$(VYOS_LOCALUI_DIR)
 
 	# Install SNMP MIBs
 	mkdir -p $(DIR)/$(VYOS_MIBS_DIR)

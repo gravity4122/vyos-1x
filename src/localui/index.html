@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="application-name" content="DevGate">
+    <title>DevGate Console</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z"></path>
+              <path d="M8 9.2h8M8 12h8M8 14.8h5"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">DevGate</div>
+            <div class="brand-subtitle">Router console</div>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" type="button" data-view="overview">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm10 7h6V4h-6v16ZM4 20h6v-3H4v3Z"></path></svg>
+            </span>
+            Overview
+          </button>
+          <button class="nav-item" type="button" data-view="configuration">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"></path><circle cx="16" cy="18" r="2"></circle></svg>
+            </span>
+            Configuration
+          </button>
+          <button class="nav-item" type="button" data-view="interfaces">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"></path><circle cx="8" cy="7" r="2"></circle><circle cx="16" cy="17" r="2"></circle></svg>
+            </span>
+            Interfaces
+          </button>
+          <button class="nav-item" type="button" data-view="system">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3v18M5 8h14M5 16h14"></path><circle cx="12" cy="8" r="2"></circle><circle cx="12" cy="16" r="2"></circle></svg>
+            </span>
+            System
+          </button>
+          <button class="nav-item" type="button" data-view="firewall">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6l-7-3Z"></path><path d="M9 12h6M12 9v6"></path></svg>
+            </span>
+            Firewall
+          </button>
+          <button class="nav-item" type="button" data-view="services">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"></path><circle cx="8" cy="7" r="1.5"></circle><circle cx="16" cy="12" r="1.5"></circle><circle cx="11" cy="17" r="1.5"></circle></svg>
+            </span>
+            Services
+          </button>
+          <button class="nav-item" type="button" data-view="operations">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path><path d="M5 19h14"></path></svg>
+            </span>
+            Operations
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="ghost-button" type="button" id="refreshButton">Refresh</button>
+          <button class="ghost-button danger" type="button" id="clearKeyButton">Clear key</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <h1>System Overview</h1>
+            <p id="topbarSubtitle">Connect with an API key to load system state.</p>
+          </div>
+          <div class="status-cluster" aria-live="polite">
+            <span class="status-pill" id="apiStatus">Disconnected</span>
+            <span class="status-pill muted" id="schemaStatus">Schema pending</span>
+          </div>
+        </header>
+
+        <section class="auth-panel" id="authPanel">
+          <div class="auth-copy">
+            <h2>Connect to this router</h2>
+            <p>API access required. The key stays in this browser.</p>
+          </div>
+          <form class="auth-form" id="authForm">
+            <label for="apiKey">API key</label>
+            <div class="input-row">
+              <input id="apiKey" name="apiKey" type="password" autocomplete="current-password" spellcheck="false" required>
+              <button class="primary-button" type="submit">Connect</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="notice hidden" id="notice" role="status" aria-live="polite"></section>
+
+        <section class="workspace" id="overviewWorkspace" data-workspace="overview">
+          <div class="dashboard-grid" id="dashboard" aria-label="System dashboard">
+            <article class="panel hero-panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Device Status</h2>
+                  <p>Identity, uptime, and management service state.</p>
+                </div>
+                <span class="panel-indicator" id="healthIndicator"></span>
+              </div>
+              <dl class="metric-list" id="healthMetrics">
+                <div><dt>Status</dt><dd>Waiting</dd></div>
+                <div><dt>REST</dt><dd>Unknown</dd></div>
+                <div><dt>GraphQL</dt><dd>Unknown</dd></div>
+                <div><dt>Strict mode</dt><dd>Unknown</dd></div>
+              </dl>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Resources</h2>
+                  <p>CPU, memory, and storage summary.</p>
+                </div>
+              </div>
+              <div class="capability-list" id="resourceList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Network Summary</h2>
+                  <p>Interfaces and route table status.</p>
+                </div>
+              </div>
+              <div class="schema-list" id="networkList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Candidate Changes</h2>
+                  <p>Staged configuration summary.</p>
+                </div>
+              </div>
+              <div class="diff-summary" id="diffSummary">
+                <div class="empty-state">No candidate data loaded.</div>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Service Modules</h2>
+                  <p>Available GUI backend capabilities.</p>
+                </div>
+              </div>
+              <div class="capability-list" id="capabilityList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Configuration Schema</h2>
+                  <p>Top-level configuration areas.</p>
+                </div>
+              </div>
+              <div class="schema-list" id="schemaList"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace hidden" id="configurationWorkspace" data-workspace="configuration" aria-label="Configuration workspace">
+          <div class="config-layout">
+            <article class="panel config-tree-panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Config Tree</h2>
+                  <p>Browse schema-backed configuration paths.</p>
+                </div>
+                <button class="secondary-button compact-button" type="button" id="configRootButton">Root</button>
+              </div>
+              <div class="breadcrumb" id="configBreadcrumb"></div>
+              <div class="schema-list" id="configChildren"></div>
+            </article>
+
+            <article class="panel config-detail-panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Node Details</h2>
+                  <p>Metadata for the selected configuration path.</p>
+                </div>
+              </div>
+              <dl class="detail-grid" id="configNodeDetails"></dl>
+              <div>
+                <h3>Candidate Preview</h3>
+                <pre class="code-preview" id="candidatePreview">No candidate data loaded.</pre>
+              </div>
+            </article>
+
+            <article class="panel config-stage-panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Stage Change</h2>
+                  <p>Apply a set or delete operation to the candidate config.</p>
+                </div>
+              </div>
+              <form class="config-form" id="configStageForm">
+                <label for="configPath">Path</label>
+                <input id="configPath" name="path" type="text" placeholder="system/host-name" autocomplete="off" spellcheck="false" required>
+
+                <label for="configOperation">Operation</label>
+                <select id="configOperation" name="operation">
+                  <option value="set">Set</option>
+                  <option value="delete">Delete</option>
+                </select>
+
+                <label for="configValue">Value</label>
+                <textarea id="configValue" name="value" rows="3" placeholder="Optional value"></textarea>
+
+                <div class="form-actions">
+                  <button class="secondary-button" type="button" id="reloadConfigButton">Refresh path</button>
+                  <button class="primary-button" type="submit">Stage</button>
+                </div>
+              </form>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace hidden" id="interfacesWorkspace" data-workspace="interfaces" aria-label="Interfaces workspace">
+          <div class="interface-summary" id="interfaceSummary"></div>
+          <div class="interfaces-layout">
+            <article class="panel interface-list-panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Interfaces</h2>
+                  <p>Live state combined with candidate configuration.</p>
+                </div>
+                <button class="secondary-button compact-button" type="button" id="reloadInterfacesButton">Reload</button>
+              </div>
+              <div class="schema-list" id="interfaceList"></div>
+            </article>
+
+            <article class="panel interface-detail-panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Interface Details</h2>
+                  <p>Status, addressing, and common editable fields.</p>
+                </div>
+              </div>
+              <dl class="detail-grid" id="interfaceDetails"></dl>
+
+              <form class="interface-form" id="interfaceEditForm">
+                <label for="interfaceDescription">Description</label>
+                <div class="input-row">
+                  <input id="interfaceDescription" name="description" type="text" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="clearDescriptionButton">Clear</button>
+                </div>
+
+                <label for="interfaceAddress">Address</label>
+                <div class="input-row">
+                  <input id="interfaceAddress" name="address" type="text" placeholder="192.0.2.10/24" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="deleteAddressButton">Delete</button>
+                </div>
+
+                <label for="interfaceMtu">MTU</label>
+                <div class="input-row">
+                  <input id="interfaceMtu" name="mtu" type="text" inputmode="numeric" autocomplete="off">
+                  <button class="secondary-button" type="button" id="clearMtuButton">Clear</button>
+                </div>
+
+                <label for="interfaceEnabled">Administrative State</label>
+                <select id="interfaceEnabled" name="enabled">
+                  <option value="enabled">Enabled</option>
+                  <option value="disabled">Disabled</option>
+                  <option value="unchanged">No change</option>
+                </select>
+
+                <div class="form-actions">
+                  <button class="secondary-button" type="button" id="stageInterfaceStateButton">Stage state</button>
+                  <button class="primary-button" type="submit">Stage fields</button>
+                </div>
+              </form>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace hidden" id="systemWorkspace" data-workspace="system" aria-label="System workspace">
+          <div class="interface-summary" id="systemSummary"></div>
+          <div class="system-layout">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Identity</h2>
+                  <p>Hostname and runtime version details.</p>
+                </div>
+                <button class="secondary-button compact-button" type="button" id="reloadSystemButton">Reload</button>
+              </div>
+              <dl class="detail-grid" id="systemDetails"></dl>
+              <form class="interface-form" id="systemIdentityForm">
+                <label for="systemHostname">Hostname</label>
+                <input id="systemHostname" name="hostname" type="text" autocomplete="off" spellcheck="false">
+                <button class="primary-button" type="submit">Stage hostname</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>DNS</h2>
+                  <p>Name servers used by the device.</p>
+                </div>
+              </div>
+              <div class="schema-list" id="dnsServerList"></div>
+              <form class="interface-form" id="dnsServerForm">
+                <label for="dnsServer">Name server</label>
+                <div class="input-row">
+                  <input id="dnsServer" name="server" type="text" placeholder="1.1.1.1" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="deleteDnsServerButton">Delete</button>
+                </div>
+                <button class="primary-button" type="submit">Stage name server</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Time</h2>
+                  <p>Timezone and time synchronization.</p>
+                </div>
+              </div>
+              <dl class="detail-grid" id="timeDetails"></dl>
+              <form class="interface-form" id="timeForm">
+                <label for="systemTimezone">Timezone</label>
+                <input id="systemTimezone" name="timezone" type="text" placeholder="UTC" autocomplete="off" spellcheck="false">
+                <button class="primary-button" type="submit">Stage timezone</button>
+              </form>
+              <form class="interface-form" id="ntpServerForm">
+                <label for="ntpServer">NTP server</label>
+                <div class="input-row">
+                  <input id="ntpServer" name="server" type="text" placeholder="pool.ntp.org" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="deleteNtpServerButton">Delete</button>
+                </div>
+                <button class="primary-button" type="submit">Stage NTP server</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Access</h2>
+                  <p>SSH and management API status.</p>
+                </div>
+              </div>
+              <dl class="detail-grid" id="accessDetails"></dl>
+              <form class="interface-form" id="sshForm">
+                <label for="sshEnabled">SSH service</label>
+                <select id="sshEnabled" name="enabled">
+                  <option value="enabled">Enabled</option>
+                  <option value="disabled">Disabled</option>
+                  <option value="unchanged">No change</option>
+                </select>
+                <label for="sshPort">SSH port</label>
+                <input id="sshPort" name="port" type="text" inputmode="numeric" autocomplete="off">
+                <div class="form-actions">
+                  <button class="secondary-button" type="button" id="clearSshPortButton">Clear port</button>
+                  <button class="primary-button" type="submit">Stage SSH</button>
+                </div>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Users And Logging</h2>
+                  <p>Configured accounts and syslog targets.</p>
+                </div>
+              </div>
+              <div class="schema-list" id="systemAuxList"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace hidden" id="firewallWorkspace" data-workspace="firewall" aria-label="Firewall workspace">
+          <div class="interface-summary" id="firewallSummary"></div>
+          <div class="system-layout">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Policy Summary</h2>
+                  <p>Configured groups, filter rules, zones, and NAT rules.</p>
+                </div>
+                <button class="secondary-button compact-button" type="button" id="reloadFirewallButton">Reload</button>
+              </div>
+              <div class="schema-list" id="firewallOverviewList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Groups</h2>
+                  <p>Add or remove members from common firewall groups.</p>
+                </div>
+              </div>
+              <div class="schema-list" id="firewallGroupList"></div>
+              <form class="interface-form" id="firewallGroupForm">
+                <label for="firewallGroupType">Group type</label>
+                <select id="firewallGroupType" name="groupType">
+                  <option value="address-group">Address group</option>
+                  <option value="network-group">Network group</option>
+                  <option value="port-group">Port group</option>
+                  <option value="interface-group">Interface group</option>
+                </select>
+                <label for="firewallGroupName">Group name</label>
+                <input id="firewallGroupName" name="groupName" type="text" autocomplete="off" spellcheck="false">
+                <label for="firewallGroupMember">Member</label>
+                <div class="input-row">
+                  <input id="firewallGroupMember" name="member" type="text" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="deleteFirewallGroupMemberButton">Delete</button>
+                </div>
+                <button class="primary-button" type="submit">Stage member</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Filter Rules</h2>
+                  <p>Stage common fields for IPv4 and IPv6 named chains.</p>
+                </div>
+              </div>
+              <div class="schema-list" id="firewallRuleList"></div>
+              <form class="interface-form" id="firewallRuleForm">
+                <label for="firewallFamily">Family</label>
+                <select id="firewallFamily" name="family">
+                  <option value="ipv4">IPv4</option>
+                  <option value="ipv6">IPv6</option>
+                </select>
+                <label for="firewallChainName">Chain name</label>
+                <input id="firewallChainName" name="chainName" type="text" autocomplete="off" spellcheck="false">
+                <label for="firewallRuleId">Rule number</label>
+                <input id="firewallRuleId" name="ruleId" type="text" inputmode="numeric" autocomplete="off">
+                <label for="firewallAction">Action</label>
+                <select id="firewallAction" name="action">
+                  <option value="accept">Accept</option>
+                  <option value="drop">Drop</option>
+                  <option value="reject">Reject</option>
+                </select>
+                <label for="firewallProtocol">Protocol</label>
+                <input id="firewallProtocol" name="protocol" type="text" placeholder="tcp" autocomplete="off" spellcheck="false">
+                <label for="firewallSource">Source address</label>
+                <input id="firewallSource" name="source" type="text" autocomplete="off" spellcheck="false">
+                <label for="firewallDestination">Destination address</label>
+                <input id="firewallDestination" name="destination" type="text" autocomplete="off" spellcheck="false">
+                <label for="firewallDestinationPort">Destination port</label>
+                <input id="firewallDestinationPort" name="destinationPort" type="text" autocomplete="off" spellcheck="false">
+                <label for="firewallRuleDescription">Description</label>
+                <input id="firewallRuleDescription" name="description" type="text" autocomplete="off" spellcheck="false">
+                <label for="firewallLog">Log</label>
+                <select id="firewallLog" name="log">
+                  <option value="unchanged">No change</option>
+                  <option value="enabled">Enabled</option>
+                  <option value="disabled">Disabled</option>
+                </select>
+                <div class="form-actions">
+                  <button class="secondary-button" type="button" id="deleteFirewallRuleButton">Delete rule</button>
+                  <button class="primary-button" type="submit">Stage rule</button>
+                </div>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>NAT Rules</h2>
+                  <p>Stage common source and destination NAT fields.</p>
+                </div>
+              </div>
+              <div class="schema-list" id="natRuleList"></div>
+              <form class="interface-form" id="natRuleForm">
+                <label for="natDirection">Direction</label>
+                <select id="natDirection" name="direction">
+                  <option value="source">Source NAT</option>
+                  <option value="destination">Destination NAT</option>
+                </select>
+                <label for="natRuleId">Rule number</label>
+                <input id="natRuleId" name="ruleId" type="text" inputmode="numeric" autocomplete="off">
+                <label for="natInterface">Interface</label>
+                <input id="natInterface" name="interface" type="text" autocomplete="off" spellcheck="false">
+                <label for="natSource">Source address</label>
+                <input id="natSource" name="source" type="text" autocomplete="off" spellcheck="false">
+                <label for="natDestination">Destination address</label>
+                <input id="natDestination" name="destination" type="text" autocomplete="off" spellcheck="false">
+                <label for="natTranslationAddress">Translation address</label>
+                <input id="natTranslationAddress" name="translationAddress" type="text" placeholder="masquerade" autocomplete="off" spellcheck="false">
+                <label for="natTranslationPort">Translation port</label>
+                <input id="natTranslationPort" name="translationPort" type="text" autocomplete="off" spellcheck="false">
+                <label for="natDescription">Description</label>
+                <input id="natDescription" name="description" type="text" autocomplete="off" spellcheck="false">
+                <div class="form-actions">
+                  <button class="secondary-button" type="button" id="deleteNatRuleButton">Delete rule</button>
+                  <button class="primary-button" type="submit">Stage NAT</button>
+                </div>
+              </form>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace hidden" id="servicesWorkspace" data-workspace="services" aria-label="Services workspace">
+          <div class="interface-summary" id="servicesSummary"></div>
+          <div class="system-layout">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Service Inventory</h2>
+                  <p>Candidate configuration state for common services.</p>
+                </div>
+                <button class="secondary-button compact-button" type="button" id="reloadServicesButton">Reload</button>
+              </div>
+              <div class="schema-list" id="servicesList"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Service State</h2>
+                  <p>Enable or disable supported services.</p>
+                </div>
+              </div>
+              <form class="interface-form" id="serviceToggleForm">
+                <label for="serviceKey">Service</label>
+                <select id="serviceKey" name="serviceKey">
+                  <option value="dns-forwarding">DNS forwarding</option>
+                  <option value="dhcp-relay">DHCP relay</option>
+                  <option value="dhcp-server">DHCP server</option>
+                  <option value="lldp">LLDP</option>
+                  <option value="snmp">SNMP</option>
+                  <option value="prometheus">Prometheus exporters</option>
+                  <option value="telegraf">Telegraf</option>
+                  <option value="haproxy">HAProxy load balancing</option>
+                </select>
+                <label for="serviceState">State</label>
+                <select id="serviceState" name="state">
+                  <option value="enabled">Enabled</option>
+                  <option value="disabled">Disabled</option>
+                </select>
+                <button class="primary-button" type="submit">Stage state</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>DNS Forwarding</h2>
+                  <p>Manage listener addresses for recursive DNS service.</p>
+                </div>
+              </div>
+              <form class="interface-form" id="dnsForwardingForm">
+                <label for="dnsForwardingListenAddress">Listen address</label>
+                <div class="input-row">
+                  <input id="dnsForwardingListenAddress" name="listenAddress" type="text" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="deleteDnsForwardingListenButton">Delete</button>
+                </div>
+                <button class="primary-button" type="submit">Stage listener</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>DHCP Relay</h2>
+                  <p>Stage relay server and interface entries.</p>
+                </div>
+              </div>
+              <form class="interface-form" id="dhcpRelayForm">
+                <label for="dhcpRelayServer">Server</label>
+                <div class="input-row">
+                  <input id="dhcpRelayServer" name="server" type="text" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="deleteDhcpRelayServerButton">Delete</button>
+                </div>
+                <label for="dhcpRelayInterface">Interface</label>
+                <div class="input-row">
+                  <input id="dhcpRelayInterface" name="interface" type="text" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="deleteDhcpRelayInterfaceButton">Delete</button>
+                </div>
+                <button class="primary-button" type="submit">Stage relay</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>SNMP</h2>
+                  <p>Stage basic community and location metadata.</p>
+                </div>
+              </div>
+              <form class="interface-form" id="snmpForm">
+                <label for="snmpCommunity">Community</label>
+                <div class="input-row">
+                  <input id="snmpCommunity" name="community" type="text" autocomplete="off" spellcheck="false">
+                  <button class="secondary-button" type="button" id="deleteSnmpCommunityButton">Delete</button>
+                </div>
+                <label for="snmpAuthorization">Authorization</label>
+                <select id="snmpAuthorization" name="authorization">
+                  <option value="ro">Read only</option>
+                  <option value="rw">Read write</option>
+                </select>
+                <label for="snmpContact">Contact</label>
+                <input id="snmpContact" name="contact" type="text" autocomplete="off" spellcheck="false">
+                <label for="snmpLocation">Location</label>
+                <input id="snmpLocation" name="location" type="text" autocomplete="off" spellcheck="false">
+                <button class="primary-button" type="submit">Stage SNMP</button>
+              </form>
+            </article>
+          </div>
+        </section>
+
+        <section class="commit-bar" aria-label="Candidate change status">
+          <div>
+            <strong id="commitState">No pending status</strong>
+            <span id="commitDetail">Connect to check candidate changes.</span>
+          </div>
+          <div class="commit-actions">
+            <button class="secondary-button" type="button" id="discardButton" disabled>Discard</button>
+            <button class="secondary-button" type="button" id="saveButton" disabled>Save</button>
+            <button class="primary-button" type="button" id="commitButton" disabled>Commit</button>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

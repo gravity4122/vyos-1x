@@ -1,0 +1,26 @@
+Format: 1.8
+Date: Fri, 26 Jun 2026 16:42:46 +0530
+Source: vyos-1x-build-deps
+Binary: vyos-1x-build-deps
+Built-For-Profiles: noudeb
+Architecture: all
+Version: 999.0
+Distribution: unstable
+Urgency: low
+Maintainer: Equivs Dummy Package Generator <root@monster>
+Changed-By: Equivs Dummy Package Generator <root@monster>
+Description:
+ vyos-1x-build-deps - build-dependencies for vyos-1x
+Changes:
+ vyos-1x-build-deps (999.0) unstable; urgency=low
+ .
+   * First version
+Checksums-Sha1:
+ d7bd33dee686065709926c7a3a0301c1b1012545 2428 vyos-1x-build-deps_999.0_all.deb
+ 95e1ad766c5e8353334353462ff37528dd9d17ae 6088 vyos-1x-build-deps_999.0_amd64.buildinfo
+Checksums-Sha256:
+ 63c0fb0ed978fac23e5489e04f3115a55701329c8e0bbb42af4d9ff01f98ec5f 2428 vyos-1x-build-deps_999.0_all.deb
+ 29f8097fa66223593f04d91bee22b9faabbe9765ce51539aeb1b8058e5165762 6088 vyos-1x-build-deps_999.0_amd64.buildinfo
+Files:
+ 0b7a83e8b6ec243d67feaef51edecf9a 2428 devel optional vyos-1x-build-deps_999.0_all.deb
+ 93467c86ad5b20bcfb7286060f61498b 6088 devel optional vyos-1x-build-deps_999.0_amd64.buildinfo
